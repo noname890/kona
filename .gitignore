@@ -3,3 +3,4 @@ cli
 lib
 node_modules
 !src/*
+personal_tests
