@@ -1,2 +1,2 @@
-# ${{ name }} contributing guide.
+# KonaScript contributing guide.
 
