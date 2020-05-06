@@ -1,8 +1,7 @@
 module.exports = {
 	env: {
 		es6: true,
-		node: true,
-		mocha: true
+		node: true
 	},
 	extends: [ 'standard' ],
 	globals: {
@@ -17,10 +16,10 @@ module.exports = {
 	plugins: [ '@typescript-eslint' ],
 	rules: {
 		'no-tabs': 'off',
+		'no-useless-constructor': 'off',
 		indent: 'off',
 		semi: 'off',
 		'space-before-function-paren': 'off',
-		'no-useless-constructor': 'off',
-		'array-bracket-spacing': 'off'
+		'no-unused-expressions': 'off'
 	}
 };
