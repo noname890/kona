@@ -1,6 +1,7 @@
 .vscode
 cli
 lib
+!src/lib/
 node_modules
 src/*.js
 personal_tests
