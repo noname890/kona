@@ -13,6 +13,7 @@ class LexScanner {
 	public start: number = 0;
 	public current: number = 0;
 	public line: number = 0;
+	public column: number = 1;
 
 	constructor(public source: string, public fileName: string) {}
 
@@ -28,6 +29,7 @@ class LexScanner {
 
 	nextChar(skip: number = 1): string {
 		this.current += skip;
+		this.column += skip;
 		return this.source.charAt(this.current - 1);
 	}
 
@@ -70,8 +72,8 @@ class LexScanner {
 							? TokenType.TIMES_EQ
 							: this.match('/')
 								? throws(new SyntaxError('Unexpected multiline comment ending.'), this.fileName, {
-										line: this.line,
-										column: this.current,
+										line: this.line + 1,
+										column: this.column,
 										code: 'TO_BE_REPLACED',
 										exit: true
 									})
@@ -107,44 +109,24 @@ class LexScanner {
 				if (this.match('/')) {
 					while (this.peek() !== '\n' && !(this.current >= this.source.length)) this.nextChar();
 				} else if (this.match('*')) {
-					let multilines: number = 0;
-					multilines++;
-
-					while (multilines !== 0 && !(this.current >= this.source.length)) {
-						this.nextChar();
-						if (this.peek() === '/' && this.peek(1) === '*') {
-							multilines++;
-						}
-
-						if (this.peek() === '*' && this.peek(1) === '/') {
-							multilines--;
-						}
-					}
-					// multilines isn't zero so we throw an error
-					if (multilines) {
-						throws(
-							new SyntaxError('Expected multiline comment end, but found end of file.'),
-							this.fileName,
-							{
-								line: this.line,
-								column: this.current,
-								code: 'TO_BE_REPLACED',
-								exit: true
-							}
-						);
-					}
-					this.nextChar(2);
+					this.konaMultiLine();
 				} else {
 					this.addToken(this.match('=') ? TokenType.DIV_EQ : TokenType.DIV);
 				}
 				break;
 			case ' ':
+				this.column++;
+				break;
 			case '\r':
+				this.column += 4;
+				break;
 			case '\t':
+				this.column += 4;
 				// ignore whitespace
 				break;
 			case '\n':
 				this.line++;
+				this.column = 1;
 				break;
 			case '"':
 				this.konaString();
@@ -158,8 +140,8 @@ class LexScanner {
 				} else {
 					console.log(char);
 					throws(new SyntaxError("Unexpected character: '" + char), this.fileName, {
-						line: this.line,
-						column: this.current,
+						line: this.line + 1,
+						column: this.column,
 						code: 'TO_BE_REPLACED',
 						exit: false
 					});
@@ -185,6 +167,7 @@ class LexScanner {
 		}
 
 		this.current++;
+		this.column++;
 		return true;
 	}
 
@@ -223,9 +206,9 @@ class LexScanner {
 			this.nextChar();
 		}
 		if (this.isEnd()) {
-			throws(new SyntaxError('Expected closing string, but found end of file.'), this.fileName, {
-				line: this.line,
-				column: this.current,
+			throws(new SyntaxError('Expected string end, but found end of file.'), this.fileName, {
+				line: this.line + 1,
+				column: this.column,
 				code: 'TO_BE_REPLACED',
 				exit: true
 			});
@@ -254,6 +237,32 @@ class LexScanner {
 		const type = Keywords[this.source.substring(this.start, this.current)] || TokenType.IDENTIFIER;
 
 		this.addToken(type);
+	}
+
+	private konaMultiLine() {
+		let multilines: number = 0;
+		multilines++;
+
+		while (multilines !== 0 && !(this.current >= this.source.length)) {
+			this.nextChar();
+			if (this.peek() === '/' && this.peek(1) === '*') {
+				multilines++;
+			}
+
+			if (this.peek() === '*' && this.peek(1) === '/') {
+				multilines--;
+			}
+		}
+		// multilines isn't zero so we throw an error
+		if (multilines) {
+			throws(new SyntaxError('Expected multiline comment end, but found end of file.'), this.fileName, {
+				line: this.line + 1,
+				column: this.column,
+				code: 'TO_BE_REPLACED',
+				exit: true
+			});
+		}
+		this.nextChar(2);
 	}
 
 	// -------DEFINITIONS------ //
