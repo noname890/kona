@@ -2,5 +2,5 @@
 cli
 lib
 node_modules
-!src/*
+src/*.js
 personal_tests
