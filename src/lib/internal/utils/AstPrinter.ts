@@ -1,24 +1,24 @@
 /* eslint no-unused-vars: */
 
+// TODO implement other types and their respective visitor functions
+
 import { ExpVisitors } from '../../expressions/ExpVisitors';
 import { Binary } from '../../expressions/types/Binary';
 import { Expression } from '../../expressions/Expression';
 import { Group } from '../../expressions/types/Group';
 import { Literal } from '../../expressions/types/Literal';
 import { Unary } from '../../expressions/types/Unary';
+import { Call } from '../../expressions/types/Call';
 class AstPrinter implements ExpVisitors {
 	public print(expr: Expression): string {
-		console.log('1');
 		return expr.accept(this);
 	}
 
 	public visitBinary(binary: Binary): string {
-		console.log(2);
 		return this.parenthesize(binary.operator.lexeme, binary.leftExp, binary.rightExp);
 	}
 
 	public visitGrouping(group: Group): string {
-		console.log(this.parenthesize('group', group.expression));
 		return this.parenthesize('group', group.expression);
 	}
 
@@ -30,7 +30,11 @@ class AstPrinter implements ExpVisitors {
 		return literal.value.toString();
 	}
 
-	public parenthesize(name: string, ...expr: Expression[]): string {
+	public visitCall(call: Call): string {
+		return this.parenthesize('Function', new Literal(call.args.join(', ')));
+	}
+
+	parenthesize(name: string, ...expr: Expression[]): string {
 		let string = '(' + name;
 
 		for (let i = 0; i <= expr.length - 1; i++) {
