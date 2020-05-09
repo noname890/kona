@@ -68,16 +68,14 @@ class LexScanner {
 				this.addToken(
 					this.match('*')
 						? TokenType.POW
-						: this.match('=')
-							? TokenType.TIMES_EQ
-							: this.match('/')
-								? throws(new SyntaxError('Unexpected multiline comment ending.'), this.fileName, {
-										line: this.line + 1,
-										column: this.column,
-										code: 'TO_BE_REPLACED',
-										exit: true
-									})
-								: TokenType.MULTIPLY
+						: this.match('/')
+							? throws(new SyntaxError('Unexpected multiline comment ending.'), this.fileName, {
+									line: this.line + 1,
+									column: this.column,
+									code: 'TO_BE_REPLACED',
+									exit: true
+								})
+							: TokenType.MULTIPLY
 				);
 				break;
 			case '!':
@@ -89,12 +87,10 @@ class LexScanner {
 				);
 				break;
 			case '+':
-				this.addToken(this.match('=') ? TokenType.PLUS_EQ : TokenType.PLUS);
+				this.addToken(TokenType.PLUS);
 				break;
 			case '-':
-				this.addToken(
-					this.match('=') ? TokenType.MINUS_EQ : this.match('>') ? TokenType.ARROW : TokenType.MINUS
-				);
+				this.addToken(this.match('>') ? TokenType.ARROW : TokenType.MINUS);
 				break;
 			case '<':
 				this.addToken(this.match('=') ? TokenType.LESS_OR_EQ_THAN : TokenType.LESS_THAN);
@@ -111,7 +107,7 @@ class LexScanner {
 				} else if (this.match('*')) {
 					this.konaMultiLine();
 				} else {
-					this.addToken(this.match('=') ? TokenType.DIV_EQ : TokenType.DIV);
+					this.addToken(TokenType.DIV);
 				}
 				break;
 			case ' ':
@@ -155,7 +151,7 @@ class LexScanner {
 		if (typeof type === 'undefined') {
 			return;
 		}
-		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line));
+		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line, this.column));
 	}
 
 	match(expected: string): boolean {
@@ -221,7 +217,7 @@ class LexScanner {
 			});
 		}
 		this.nextChar();
-		this.addToken(TokenType.DOUBLE_STRING, this.source.substring(this.start + 1, this.current - 1));
+		this.addToken(TokenType.STRING, this.source.substring(this.start + 1, this.current - 1));
 	}
 
 	private konaInt() {
