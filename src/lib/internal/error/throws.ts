@@ -1,5 +1,6 @@
 import { KonaError } from './errorTypes/InternalKonaError';
 import * as chalkImport from 'chalk';
+import { ParseError } from './errorTypes/ParseError';
 
 // TypeScript translates the chalk import to __importStar(require('chalk'))
 // and not to require('chalk'), that returns a module object with a property
@@ -19,6 +20,7 @@ function throws(
 	if (info.exit) {
 		process.exit(1);
 	}
+	throw new ParseError();
 }
 
 export { throws };
