@@ -3,7 +3,7 @@
 import { Token } from './Token';
 import { TokenType } from './TokenTypes';
 import { throws } from '../internal/error/throws';
-import { SyntaxError } from '../internal/error/SyntaxError';
+import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import { Keywords } from './Keywords';
 
 let hadError: boolean = false;
@@ -125,10 +125,11 @@ class LexScanner {
 				// ignore whitespace
 				break;
 			case '\n':
+				this.addToken(TokenType.EOL);
 				this.line++;
 				this.column = 1;
 				break;
-			case '"':
+			case "'":
 				this.konaString();
 				break;
 
@@ -138,12 +139,11 @@ class LexScanner {
 				} else if (this.isAlpha(char)) {
 					this.konaIdentifier();
 				} else {
-					console.log(char);
-					throws(new SyntaxError("Unexpected character: '" + char), this.fileName, {
+					throws(new SyntaxError("Unexpected character '" + char + "'"), this.fileName, {
 						line: this.line + 1,
 						column: this.column,
 						code: 'TO_BE_REPLACED',
-						exit: false
+						exit: true
 					});
 					hadError = true;
 				}
@@ -201,8 +201,15 @@ class LexScanner {
 	// -------DEFINITIONS------ //
 
 	private konaString() {
-		while (this.peek() !== '"' && !this.isEnd()) {
-			if (this.peek() === '\n') this.line++;
+		while (this.peek() !== "'" && !this.isEnd()) {
+			if (this.peek() === '\n') {
+				throws(new SyntaxError('Expected string end, but found end of line.'), this.fileName, {
+					line: this.line + 1,
+					column: this.column,
+					code: 'TO_BE_REPLACED',
+					exit: true
+				});
+			}
 			this.nextChar();
 		}
 		if (this.isEnd()) {
