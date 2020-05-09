@@ -64,6 +64,7 @@ enum TokenTypes {
 	UNDEFINED = 'UNDEFINED',
 	FALSE = 'FALSE',
 	TRUE = 'TRUE',
+	EOL = 'EOL',
 	EOF = 'EOF'
 }
 
