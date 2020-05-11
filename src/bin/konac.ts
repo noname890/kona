@@ -1,5 +1,18 @@
-const argv = process.argv.slice(1, process.argv.length);
+import { Interpreter } from '../lib/interpreter/interpreter';
+import { LexScanner } from '../lib/lexer/LexScanner';
+import { Parser } from '../lib/parser/Parser';
+import { Literal } from '../lib/expressions/exp';
+import { readFileSync } from 'fs';
 
-if (argv[0]) {
-	// interpret the file
+if (process.argv[2] && process.argv.length < 4) {
+	run(readFileSync(process.argv[2], 'utf8'), process.argv[2]);
+}
+
+function run(source: string, fileName: string) {
+	// lex the file contents
+	const lexed = new LexScanner(source, fileName).scan();
+	const parsed = new Parser(lexed, fileName).parse();
+	const interpreter = new Interpreter(fileName);
+	/* eslint no-unneeded-ternary: */
+	interpreter.interpret(parsed ? parsed : new Literal('nil'));
 }
