@@ -21,6 +21,7 @@ module.exports = {
 		semi: 'off',
 		'space-before-function-paren': 'off',
 		'no-unused-expressions': 'off',
-		'no-unused-vars': 'off'
+		'no-unused-vars': 'off',
+		eqeqeq: 'off'
 	}
 };
