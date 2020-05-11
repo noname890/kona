@@ -26,8 +26,11 @@ class AstPrinter implements ExpVisitors {
 		return this.parenthesize(unary.operator.lexeme, unary.right);
 	}
 
-	public visitLiteral(literal: Literal): string {
-		return literal.value.toString();
+	public visitLiteral(literal: Literal): string | undefined {
+		if (literal.value !== undefined) {
+			return literal.value.toString();
+		}
+		return 'nil';
 	}
 
 	public visitCall(call: Call): string {
