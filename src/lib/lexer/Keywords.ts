@@ -7,7 +7,7 @@ const Keywords: any = {
 	let: TokenType.LET,
 	const: TokenType.CONST,
 	return: TokenType.RETURN,
-	undefined: TokenType.UNDEFINED,
+	nil: TokenType.UNDEFINED,
 	new: TokenType.NEW,
 	throw: TokenType.THROW,
 	pub: TokenType.PUBLIC,
