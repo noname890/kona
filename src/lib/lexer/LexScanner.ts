@@ -6,8 +6,6 @@ import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import { Keywords } from './Keywords';
 
-let hadError: boolean = false;
-
 class LexScanner {
 	public tokens: Token[] = [];
 	public start: number = 0;
@@ -79,11 +77,18 @@ class LexScanner {
 				);
 				break;
 			case '!':
-				this.addToken(this.match('=') ? TokenType.NOT_STRICT_EQ : TokenType.NOT);
+				this.addToken(
+					this.match('=')
+						? this.match('=') ? TokenType.NOT_LOOSE_EQ : TokenType.NOT_STRICT_EQ
+						: TokenType.NOT
+				);
 				break;
 			case '=':
+				// we call match 2 times with '=' to check for ===
 				this.addToken(
-					this.match('=') ? TokenType.STRICT_EQ : this.match('>') ? TokenType.FAT_ARROW : TokenType.EQ
+					this.match('=')
+						? this.match('=') ? TokenType.LOOSE_EQ : TokenType.STRICT_EQ
+						: this.match('>') ? TokenType.FAT_ARROW : TokenType.EQ
 				);
 				break;
 			case '+':
@@ -99,7 +104,8 @@ class LexScanner {
 				this.addToken(this.match('=') ? TokenType.GREATER_OR_EQ_THAN : TokenType.GREATER_THAN);
 				break;
 			case '&':
-				this.match('&') ? this.addToken(TokenType.AND) : '';
+				// in the future i am going to implement a bitwise && and a bitwise ||
+				this.match('&') ? this.addToken(TokenType.AND) : this.unexpected(char);
 				break;
 			case '/':
 				if (this.match('/')) {
@@ -121,7 +127,7 @@ class LexScanner {
 				// ignore whitespace
 				break;
 			case '\n':
-				this.addToken(TokenType.EOL);
+				// this.addToken(TokenType.EOL);
 				this.line++;
 				this.column = 1;
 				break;
@@ -135,13 +141,7 @@ class LexScanner {
 				} else if (this.isAlpha(char)) {
 					this.konaIdentifier();
 				} else {
-					throws(new SyntaxError("Unexpected character '" + char + "'"), this.fileName, {
-						line: this.line + 1,
-						column: this.column,
-						code: 'TO_BE_REPLACED',
-						exit: true
-					});
-					hadError = true;
+					this.unexpected(char);
 				}
 		}
 	}
@@ -154,7 +154,7 @@ class LexScanner {
 		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line, this.column));
 	}
 
-	match(expected: string): boolean {
+	match(expected: string, skip: number = 0): boolean {
 		if (this.current >= this.source.length) {
 			return false;
 		}
@@ -190,6 +190,15 @@ class LexScanner {
 
 	private isDigit(number: string): boolean {
 		return number >= '0' && number <= '9';
+	}
+
+	private unexpected(char: string): void {
+		throws(new SyntaxError("Unexpected character '" + char + "'"), this.fileName, {
+			line: this.line + 1,
+			column: this.column,
+			code: 'TO_BE_REPLACED',
+			exit: true
+		});
 	}
 
 	// ----------HELPERS---------- //
@@ -230,7 +239,7 @@ class LexScanner {
 
 			while (this.isDigit(this.peek())) this.nextChar();
 		}
-		this.addToken(TokenType.NUMBER, parseInt(this.source.substring(this.start, this.current)));
+		this.addToken(TokenType.NUMBER, Number(this.source.substring(this.start, this.current)));
 	}
 
 	private konaIdentifier() {
