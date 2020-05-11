@@ -4,6 +4,9 @@ import { TokenType } from '../lexer/TokenTypes';
 import { Binary, Literal, Unary, Group } from '../expressions/exp';
 import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
+import * as chalkImport from 'chalk';
+
+const chalk = chalkImport.default;
 
 class Parser {
 	private current: number = 0;
@@ -18,7 +21,10 @@ class Parser {
 				return null;
 			}
 			console.log(
-				'INTERNAL: This is an internal error, please report this immediatly with the stacktrace below.'
+				chalk.bold.redBright('INTERNAL: ') +
+					chalk.bold.whiteBright(
+						'This is an internal error, please report this immediatly with the stacktrace below.'
+					)
 			);
 			throw e;
 		}
@@ -77,7 +83,7 @@ class Parser {
 	private multiplication(): Expression {
 		let expression: Expression = this.unary();
 
-		while (this.match(TokenType.DIV, TokenType.MULTIPLY)) {
+		while (this.match(TokenType.DIV, TokenType.MULTIPLY, TokenType.POW)) {
 			const operator: Token = this.previous();
 			const right: Expression = this.unary();
 
