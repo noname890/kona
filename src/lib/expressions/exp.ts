@@ -3,3 +3,5 @@ export * from './types/Group';
 export * from './types/Literal';
 export * from './types/Unary';
 export * from './types/Call';
+export * from './types/Variable';
+export * from './types/Assignment';
