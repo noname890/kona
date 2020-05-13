@@ -1,10 +1,12 @@
 import { Token } from '../lexer/Token';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
-import { Binary, Literal, Unary, Group } from '../expressions/exp';
+import { Binary, Literal, Unary, Group, Variable, Assignment } from '../expressions/exp';
 import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import * as chalkImport from 'chalk';
+import { Statement } from '../statements/Statements';
+import * as Stmt from '../statements/stmt';
 
 const chalk = chalkImport.default;
 
@@ -13,7 +15,15 @@ class Parser {
 
 	constructor(public readonly tokens: Token[], public fileName: string) {}
 
-	public parse(): Expression | null {
+	public parse(): Statement[] | null {
+		const statements: Statement[] = [];
+
+		while (!this.isEnd()) {
+			statements.push(this.declaration());
+		}
+
+		return statements;
+		/*
 		try {
 			return this.expression();
 		} catch (e) {
@@ -28,12 +38,57 @@ class Parser {
 			);
 			throw e;
 		}
+		*/
 	}
 
 	// ----------RULES---------- //
 
+	private declaration(): Statement {
+		if (this.match(TokenType.VAL)) {
+			const varDeclare = this.varDeclaration();
+
+			// TS complains about the return value being undefined,
+			// so that is why this is here
+			if (varDeclare) {
+				return varDeclare;
+			}
+		}
+		return this.statement();
+	}
+
+	private statement(): Statement {
+		if (this.match(TokenType.PRINT)) {
+			return this.printStatement();
+		}
+		return this.expressionStatement();
+	}
+
 	private expression(): Expression {
-		return this.equality();
+		return this.assignment();
+	}
+
+	private assignment(): Expression {
+		const expression = this.equality();
+		if (this.match(TokenType.EQ)) {
+			const equals = this.previous();
+			const value = this.assignment();
+
+			if (expression instanceof Variable) {
+				return new Assignment(expression.name, value);
+			}
+
+			throws(
+				new SyntaxError("Tried to assign to type '" + typeof expression + "'. Expected variable."),
+				this.fileName,
+				{
+					line: this.currentToken().line + 1,
+					column: this.currentToken().column || 0,
+					code: 'TO_BE_REPLACED',
+					exit: true
+				}
+			);
+		}
+		return expression;
 	}
 
 	private equality(): Expression {
@@ -124,6 +179,10 @@ class Parser {
 			return new Group(expression);
 		}
 
+		if (this.match(TokenType.IDENTIFIER)) {
+			return new Variable(this.previous());
+		}
+
 		throws(new SyntaxError("Expected expression, got '" + this.currentToken().lexeme + "'"), this.fileName, {
 			line: this.currentToken().line + 1,
 			column: this.currentToken().column || 1,
@@ -136,6 +195,40 @@ class Parser {
 	}
 
 	// ----------RULES---------- //
+
+	// ----------STATEMENTS---------- //
+
+	private varDeclaration(): Statement | undefined {
+		const name: Token | undefined = this.consume(
+			TokenType.IDENTIFIER,
+			"Expected identifier, got '" + this.currentToken().literal + "'."
+		);
+		let initializer: Expression = new Literal(undefined);
+
+		if (this.match(TokenType.EQ)) {
+			initializer = this.expression();
+		}
+
+		this.expectEndStatement();
+		if (name) {
+			return new Stmt.VariableStmt(name, initializer);
+		}
+	}
+
+	private printStatement(): Statement {
+		const expression: Expression = this.expression();
+		// this.consume(TokenType.SEMI_COL, "Expected ';' after statement.");
+		this.expectEndStatement();
+		return new Stmt.PrintStmt(expression);
+	}
+
+	private expressionStatement(): Statement {
+		const expression: Expression = this.expression();
+		this.expectEndStatement();
+		return new Stmt.ExpressionStmt(expression);
+	}
+
+	// ----------STATEMENTS---------- //
 
 	// ----------HELPERS---------- //
 
@@ -189,6 +282,29 @@ class Parser {
 
 	private currentToken(): Token {
 		return this.tokens[this.current];
+	}
+
+	private consumeMultiple(msg: string, ...tokens: TokenType[]): Token | undefined {
+		for (const i in tokens) {
+			if (this.currentToken().type === tokens[i]) {
+				return this.advance();
+			}
+		}
+		throws(new SyntaxError(msg), this.fileName, {
+			line: this.currentToken().line + 1,
+			column: this.currentToken().column || 0,
+			code: 'TO_BE_REPLACED',
+			exit: true
+		});
+	}
+
+	private expectEndStatement(): void {
+		this.consumeMultiple(
+			"Expected ';', end of line or end of file after statement.",
+			TokenType.SEMI_COL,
+			TokenType.EOL,
+			TokenType.EOF
+		);
 	}
 
 	// ----------HELPERS---------- //
