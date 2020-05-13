@@ -1,6 +1,6 @@
 import { Token } from '../lexer/Token';
 import { throws } from '../internal/error/throws';
-import { ReferenceError } from '../internal/error/errorTypes/ReferenceError';
+import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
 
 class Environment {
 	private vars: any = {};
