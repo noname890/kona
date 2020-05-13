@@ -9,6 +9,8 @@ import { Group } from '../../expressions/types/Group';
 import { Literal } from '../../expressions/types/Literal';
 import { Unary } from '../../expressions/types/Unary';
 import { Call } from '../../expressions/types/Call';
+import { Variable } from '../../expressions/exp';
+import { Assignment } from '../../expressions/types/Assignment';
 class AstPrinter implements ExpVisitors {
 	public print(expr: Expression): string {
 		return expr.accept(this);
@@ -35,6 +37,14 @@ class AstPrinter implements ExpVisitors {
 
 	public visitCall(call: Call): string {
 		return this.parenthesize('Function', new Literal(call.args.join(', ')));
+	}
+
+	public visitVar(varExpr: Variable): string {
+		return this.parenthesize('variable', new Literal(varExpr.name));
+	}
+
+	public visitAssignment(assignment: Assignment): string {
+		return '';
 	}
 
 	parenthesize(name: string, ...expr: Expression[]): string {
