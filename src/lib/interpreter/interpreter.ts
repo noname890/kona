@@ -7,16 +7,23 @@ import { throws } from '../internal/error/throws';
 import { TypeError } from '../internal/error/errorTypes/runtime/TypeError';
 import { KonaError } from '../internal/error/errorTypes/InternalKonaError';
 import * as chalkImport from 'chalk';
+import { StmtVisitors } from '../statements/StmtVisitors';
+import * as Stmt from '../statements/stmt';
+import { Statement } from '../statements/Statements';
+import { Environment } from './Environment';
 
 const chalk = chalkImport.default;
 
-class Interpreter implements ExpVisitors {
+class Interpreter implements ExpVisitors, StmtVisitors {
+	private env = new Environment(this.fileName);
+
 	constructor(public readonly fileName: string) {}
 
-	public interpret(expression: Expression) {
+	public interpret(statements: Statement[]) {
 		try {
-			const value = this.evaluate(expression);
-			console.log(this.stringify(value));
+			for (const i in statements) {
+				this.execute(statements[i]);
+			}
 		} catch (e) {
 			console.log(
 				chalk.bold.redBright('INTERNAL: ') +
@@ -28,11 +35,29 @@ class Interpreter implements ExpVisitors {
 		}
 	}
 
-	public stringify(val: any): string {
-		if (val === undefined) {
-			return 'nil';
+	// ----------VISITORS---------- //
+
+	public visitExprStmt(statement: Stmt.ExpressionStmt): void {
+		this.evaluate(statement.expression);
+	}
+
+	public visitPrintStmt(statement: Stmt.PrintStmt): void {
+		const val: any = this.evaluate(statement.expression);
+		console.log(this.stringify(val));
+	}
+
+	public visitVariableStmt(statement: Stmt.VariableStmt): void {
+		let value: any;
+
+		if (statement.initializer !== undefined) {
+			value = this.evaluate(statement.initializer);
 		}
-		return String(val);
+
+		this.env.define(statement.name.lexeme, value);
+	}
+
+	public visitVar(expression: Expr.Variable): any {
+		return this.env.getVar(expression.name);
 	}
 
 	public visitLiteral(expression: Expr.Literal): any {
@@ -106,6 +131,14 @@ class Interpreter implements ExpVisitors {
 
 	public visitCall(): any {}
 
+	public visitAssignment(expression: Expr.Assignment): any {
+		const value = this.evaluate(expression.value);
+
+		this.env.assign(expression.name, value);
+
+		return value;
+	}
+
 	public visitUnary(expression: Expr.Unary): any {
 		const right: any = this.evaluate(expression.right);
 
@@ -119,6 +152,10 @@ class Interpreter implements ExpVisitors {
 		return null;
 	}
 
+	// ----------VISITORS---------- //
+
+	// ----------HELPERS---------- //
+
 	public isTruthy(val: any): boolean {
 		if (val === null) {
 			return false;
@@ -131,6 +168,17 @@ class Interpreter implements ExpVisitors {
 
 	public evaluate(expression: Expression): any {
 		return expression.accept(this);
+	}
+
+	public execute(statement: Statement): void {
+		statement.accept(this);
+	}
+
+	public stringify(val: any): string {
+		if (val === undefined) {
+			return 'nil';
+		}
+		return String(val);
 	}
 
 	private throwTypeError(operator: Token, expected: string, got: string) {
@@ -170,6 +218,8 @@ class Interpreter implements ExpVisitors {
 			}
 		}
 	}
+
+	// ----------HELPERS---------- //
 }
 
 export { Interpreter };
