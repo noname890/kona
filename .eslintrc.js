@@ -22,6 +22,7 @@ module.exports = {
 		'space-before-function-paren': 'off',
 		'no-unused-expressions': 'off',
 		'no-unused-vars': 'off',
-		eqeqeq: 'off'
+		eqeqeq: 'off',
+		'no-prototype-builtins': 'off'
 	}
 };
