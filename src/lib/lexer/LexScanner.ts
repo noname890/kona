@@ -13,6 +13,21 @@ class LexScanner {
 	public line: number = 0;
 	public column: number = 1;
 
+	private brackets: any = {
+		curly: 0,
+		square: 0,
+		paren: 0
+	};
+
+	private bracketSymbol: any = {
+		opencurly: '{',
+		closedcurly: '}',
+		opensquare: '[',
+		closesquare: ']',
+		openparen: '(',
+		closeparen: ')'
+	};
+
 	constructor(public source: string, public fileName: string) {}
 
 	scan(): Token[] {
@@ -20,6 +35,24 @@ class LexScanner {
 			// we get the next lexeme
 			this.start = this.current;
 			this.scanToken();
+		}
+		for (const key in this.brackets) {
+			if (this.brackets[key] !== 0) {
+				throws(
+					new SyntaxError(
+						"Expected '" +
+							this.bracketSymbol[this.brackets[key] < 0 ? 'open' + key : 'close' + key] +
+							"', but found end of file."
+					),
+					this.fileName,
+					{
+						line: this.line,
+						column: this.column,
+						code: 'TO_BE_REPLACED',
+						exit: true
+					}
+				);
+			}
 		}
 		this.tokens.push(new Token(TokenType.EOF, '', null, this.line));
 		return this.tokens;
@@ -36,25 +69,31 @@ class LexScanner {
 
 		switch (char) {
 			case '{':
+				this.brackets.curly++;
 				this.addToken(TokenType.LEFT_CURLY);
 				break;
 			case '}':
+				this.brackets.curly--;
 				this.addToken(TokenType.RIGHT_CURLY);
 				break;
 			case '[':
+				this.brackets.square++;
 				this.addToken(TokenType.LEFT_BRACKET);
 				break;
 			case ']':
+				this.brackets.square--;
 				this.addToken(TokenType.RIGHT_BRACKET);
 				break;
 			case '(':
+				this.brackets.paren += 1;
 				this.addToken(TokenType.LEFT_PAREN);
 				break;
 			case ')':
+				this.brackets.paren -= 1;
 				this.addToken(TokenType.RIGHT_PAREN);
 				break;
 			case ';':
-				this.addToken(TokenType.SEMI_COL);
+				this.tokens[this.tokens.length - 1].type !== TokenType.EOL ? this.addToken(TokenType.SEMI_COL) : '';
 				break;
 			case ':':
 				this.addToken(TokenType.COLON);
@@ -127,7 +166,12 @@ class LexScanner {
 				// ignore whitespace
 				break;
 			case '\n':
-				// this.addToken(TokenType.EOL);
+				if (this.tokens.length !== 0) {
+					this.tokens[this.tokens.length - 1].type !== TokenType.SEMI_COL &&
+					this.tokens[this.tokens.length - 1].type !== TokenType.EOL
+						? this.addToken(TokenType.EOL)
+						: '';
+				}
 				this.line++;
 				this.column = 1;
 				break;
@@ -154,7 +198,7 @@ class LexScanner {
 		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line, this.column));
 	}
 
-	match(expected: string, skip: number = 0): boolean {
+	match(expected: string): boolean {
 		if (this.current >= this.source.length) {
 			return false;
 		}
