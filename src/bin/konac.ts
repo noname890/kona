@@ -1,7 +1,6 @@
 import { Interpreter } from '../lib/interpreter/interpreter';
 import { LexScanner } from '../lib/lexer/LexScanner';
 import { Parser } from '../lib/parser/Parser';
-import { Literal } from '../lib/expressions/exp';
 import { readFileSync } from 'fs';
 
 if (process.argv[2] && process.argv.length < 4) {
@@ -14,5 +13,7 @@ function run(source: string, fileName: string) {
 	const parsed = new Parser(lexed, fileName).parse();
 	const interpreter = new Interpreter(fileName);
 	/* eslint no-unneeded-ternary: */
-	interpreter.interpret(parsed ? parsed : new Literal('nil'));
+	if (parsed) {
+		interpreter.interpret(parsed);
+	}
 }
