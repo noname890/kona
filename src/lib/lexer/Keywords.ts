@@ -4,7 +4,7 @@ const Keywords: any = {
 	import: TokenType.IMPORT,
 	export: TokenType.EXPORT,
 	as: TokenType.AS,
-	let: TokenType.LET,
+	val: TokenType.VAL,
 	const: TokenType.CONST,
 	return: TokenType.RETURN,
 	nil: TokenType.UNDEFINED,
@@ -16,14 +16,15 @@ const Keywords: any = {
 	for: TokenType.FOR,
 	while: TokenType.WHILE,
 	do: TokenType.DO,
+	print: TokenType.PRINT,
 	class: TokenType.CLASS,
 	extends: TokenType.EXTENDS,
 	true: TokenType.TRUE,
 	false: TokenType.FALSE,
 	loop: TokenType.LOOP,
 	typeof: TokenType.TYPEOF,
-	sizeof: TokenType.SIZEOF,
-	async: TokenType.ASYNC
+	sizeof: TokenType.SIZEOF
+	// async: TokenType.ASYNC
 };
 
 export { Keywords };
