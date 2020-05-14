@@ -5,11 +5,15 @@ import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceEr
 class Environment {
 	private vars: any = {};
 
-	constructor(private fileName: string) {}
+	constructor(private fileName: string, public enclosing: Environment | null) {}
 
 	public getVar(name: Token): any {
 		if (this.vars.hasOwnProperty(name.lexeme)) {
 			return this.vars[name.lexeme];
+		}
+
+		if (this.enclosing !== null) {
+			return this.enclosing.getVar(name);
 		}
 
 		throws(new ReferenceError("Undefined variable: '" + name.lexeme + "'."), this.fileName, {
@@ -24,10 +28,15 @@ class Environment {
 		this.vars[name] = value;
 	}
 
-	public assign(name: Token, value: any): void {
+	public assign(name: Token, value: any): null {
 		if (this.vars.hasOwnProperty(name.lexeme)) {
 			this.vars[name.lexeme] = value;
-			return undefined;
+			return null;
+		}
+
+		if (this.enclosing !== null) {
+			this.enclosing.assign(name, value);
+			return null;
 		}
 
 		throws(new ReferenceError("Undefined variable: '" + name.lexeme + "'."), this.fileName, {
@@ -36,6 +45,7 @@ class Environment {
 			code: 'TO_BE_REPLACED',
 			exit: true
 		});
+		return null;
 	}
 }
 
