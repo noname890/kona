@@ -15,7 +15,7 @@ import { Environment } from './Environment';
 const chalk = chalkImport.default;
 
 class Interpreter implements ExpVisitors, StmtVisitors {
-	private env = new Environment(this.fileName);
+	private env = new Environment(this.fileName, null);
 
 	constructor(public readonly fileName: string) {}
 
@@ -54,6 +54,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		}
 
 		this.env.define(statement.name.lexeme, value);
+	}
+
+	public visitBlockStmt(statement: Stmt.BlockStmt): void {
+		this.executeBlock(statement.statements, new Environment(this.fileName, this.env));
 	}
 
 	public visitVar(expression: Expr.Variable): any {
@@ -155,6 +159,16 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	// ----------VISITORS---------- //
 
 	// ----------HELPERS---------- //
+
+	public executeBlock(statements: Statement[], env: Environment) {
+		const previous: Environment = this.env;
+
+		this.env = env;
+		for (const i in statements) {
+			this.execute(statements[i]);
+		}
+		this.env = previous;
+	}
 
 	public isTruthy(val: any): boolean {
 		if (val === null) {
