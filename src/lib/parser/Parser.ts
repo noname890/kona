@@ -60,6 +60,9 @@ class Parser {
 		if (this.match(TokenType.PRINT)) {
 			return this.printStatement();
 		}
+		if (this.match(TokenType.LEFT_CURLY)) {
+			return new Stmt.BlockStmt(this.block());
+		}
 		return this.expressionStatement();
 	}
 
@@ -231,6 +234,15 @@ class Parser {
 	// ----------STATEMENTS---------- //
 
 	// ----------HELPERS---------- //
+
+	private block(): Statement[] {
+		const statements: Statement[] = [];
+		while (!this.check(TokenType.RIGHT_CURLY) && !this.isEnd()) {
+			statements.push(this.declaration());
+		}
+		this.consume(TokenType.RIGHT_CURLY, "Expected '}', but found end of file.");
+		return statements;
+	}
 
 	private match(...tokentypes: TokenType[]): boolean {
 		for (const i in tokentypes) {
