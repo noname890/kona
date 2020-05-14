@@ -11,22 +11,7 @@ class LexScanner {
 	public start: number = 0;
 	public current: number = 0;
 	public line: number = 0;
-	public column: number = 1;
-
-	private brackets: any = {
-		curly: 0,
-		square: 0,
-		paren: 0
-	};
-
-	private bracketSymbol: any = {
-		opencurly: '{',
-		closedcurly: '}',
-		opensquare: '[',
-		closesquare: ']',
-		openparen: '(',
-		closeparen: ')'
-	};
+	public column: number = 0;
 
 	constructor(public source: string, public fileName: string) {}
 
@@ -36,24 +21,7 @@ class LexScanner {
 			this.start = this.current;
 			this.scanToken();
 		}
-		for (const key in this.brackets) {
-			if (this.brackets[key] !== 0) {
-				throws(
-					new SyntaxError(
-						"Expected '" +
-							this.bracketSymbol[this.brackets[key] < 0 ? 'open' + key : 'close' + key] +
-							"', but found end of file."
-					),
-					this.fileName,
-					{
-						line: this.line,
-						column: this.column,
-						code: 'TO_BE_REPLACED',
-						exit: true
-					}
-				);
-			}
-		}
+
 		this.tokens.push(new Token(TokenType.EOF, '', null, this.line));
 		return this.tokens;
 	}
@@ -69,31 +37,30 @@ class LexScanner {
 
 		switch (char) {
 			case '{':
-				this.brackets.curly++;
 				this.addToken(TokenType.LEFT_CURLY);
 				break;
 			case '}':
-				this.brackets.curly--;
 				this.addToken(TokenType.RIGHT_CURLY);
 				break;
 			case '[':
-				this.brackets.square++;
 				this.addToken(TokenType.LEFT_BRACKET);
 				break;
 			case ']':
-				this.brackets.square--;
 				this.addToken(TokenType.RIGHT_BRACKET);
 				break;
 			case '(':
-				this.brackets.paren += 1;
 				this.addToken(TokenType.LEFT_PAREN);
 				break;
 			case ')':
-				this.brackets.paren -= 1;
 				this.addToken(TokenType.RIGHT_PAREN);
 				break;
 			case ';':
-				this.tokens[this.tokens.length - 1].type !== TokenType.EOL ? this.addToken(TokenType.SEMI_COL) : '';
+				if (this.tokens.length !== 0) {
+					this.tokens[this.tokens.length - 1].type !== TokenType.EOL &&
+					this.tokens[this.tokens.length - 1].type !== TokenType.SEMI_COL
+						? this.addToken(TokenType.SEMI_COL)
+						: '';
+				}
 				break;
 			case ':':
 				this.addToken(TokenType.COLON);
@@ -156,10 +123,8 @@ class LexScanner {
 				}
 				break;
 			case ' ':
-				this.column++;
 				break;
 			case '\r':
-				this.column += 4;
 				break;
 			case '\t':
 				this.column += 4;
@@ -167,10 +132,7 @@ class LexScanner {
 				break;
 			case '\n':
 				if (this.tokens.length !== 0) {
-					this.tokens[this.tokens.length - 1].type !== TokenType.SEMI_COL &&
-					this.tokens[this.tokens.length - 1].type !== TokenType.EOL
-						? this.addToken(TokenType.EOL)
-						: '';
+					this.isExcludedFromEOL() ? this.addToken(TokenType.EOL) : '';
 				}
 				this.line++;
 				this.column = 1;
@@ -195,7 +157,7 @@ class LexScanner {
 		if (typeof type === 'undefined') {
 			return;
 		}
-		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line, this.column));
+		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line + 1, this.column));
 	}
 
 	match(expected: string): boolean {
@@ -212,6 +174,15 @@ class LexScanner {
 	}
 
 	// ----------HELPERS---------- //
+
+	isExcludedFromEOL(): boolean {
+		return (
+			this.tokens[this.tokens.length - 1].type !== TokenType.SEMI_COL &&
+			this.tokens[this.tokens.length - 1].type !== TokenType.EOL &&
+			this.tokens[this.tokens.length - 1].type !== TokenType.LEFT_CURLY &&
+			this.tokens[this.tokens.length - 1].type !== TokenType.RIGHT_CURLY
+		);
+	}
 
 	peek(charsToPeek: number = 0): string {
 		if (this.current + charsToPeek >= this.source.length) {
@@ -298,16 +269,12 @@ class LexScanner {
 	private konaMultiLine(): void {
 		while (!(this.current >= this.source.length)) {
 			this.nextChar();
-			if (this.peek() === '/' && this.peek(1) === '*') {
-				this.konaMultiLine();
-			}
-
 			if (this.peek() === '*' && this.peek(1) === '/') {
 				this.nextChar(2);
 				return;
 			}
 		}
-		// multilines isn't zero so we throw an error
+		// we reached the EOF without a closing bracket, so we throw an error
 		if (this.current >= this.source.length) {
 			throws(new SyntaxError('Expected multiline comment end, but found end of file.'), this.fileName, {
 				line: this.line + 1,
