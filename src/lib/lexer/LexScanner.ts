@@ -295,22 +295,20 @@ class LexScanner {
 		this.addToken(type);
 	}
 
-	private konaMultiLine() {
-		let multilines: number = 0;
-		multilines++;
-
-		while (multilines !== 0 && !(this.current >= this.source.length)) {
+	private konaMultiLine(): void {
+		while (!(this.current >= this.source.length)) {
 			this.nextChar();
 			if (this.peek() === '/' && this.peek(1) === '*') {
-				multilines++;
+				this.konaMultiLine();
 			}
 
 			if (this.peek() === '*' && this.peek(1) === '/') {
-				multilines--;
+				this.nextChar(2);
+				return;
 			}
 		}
 		// multilines isn't zero so we throw an error
-		if (multilines) {
+		if (this.current >= this.source.length) {
 			throws(new SyntaxError('Expected multiline comment end, but found end of file.'), this.fileName, {
 				line: this.line + 1,
 				column: this.column,
@@ -318,7 +316,6 @@ class LexScanner {
 				exit: true
 			});
 		}
-		this.nextChar(2);
 	}
 
 	// -------DEFINITIONS------ //
