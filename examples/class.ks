@@ -16,4 +16,4 @@ class ExtendClass extends ClassName {
 let test = new ExtendClass(9)
 let test2 = new ExtendClass(7)
 
-console.log(test + test2) //16
+print test + test2 //16

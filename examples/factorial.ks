@@ -1,4 +1,4 @@
-fn fact(n: number) {
+func fact(n) {
     if (n <= 1) {
         return 1;
     }
