@@ -109,6 +109,9 @@ class LexScanner {
 			case '>':
 				this.addToken(this.match('=') ? TokenType.GREATER_OR_EQ_THAN : TokenType.GREATER_THAN);
 				break;
+			case '|':
+				this.addToken(this.match('|') ? TokenType.OR : this.unexpected(char));
+				break;
 			case '&':
 				// in the future i am going to implement a bitwise && and a bitwise ||
 				this.match('&') ? this.addToken(TokenType.AND) : this.unexpected(char);
@@ -157,7 +160,7 @@ class LexScanner {
 		if (typeof type === 'undefined') {
 			return;
 		}
-		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line + 1, this.column));
+		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line, this.column));
 	}
 
 	match(expected: string): boolean {
@@ -203,11 +206,11 @@ class LexScanner {
 		return this.isAlpha(char) || this.isDigit(char);
 	}
 
-	private isDigit(number: string): boolean {
+	isDigit(number: string): boolean {
 		return number >= '0' && number <= '9';
 	}
 
-	private unexpected(char: string): void {
+	unexpected(char: string): void {
 		throws(new SyntaxError("Unexpected character '" + char + "'"), this.fileName, {
 			line: this.line + 1,
 			column: this.column,
@@ -220,7 +223,7 @@ class LexScanner {
 
 	// -------DEFINITIONS------ //
 
-	private konaString() {
+	konaString() {
 		while (this.peek() !== "'" && !this.isEnd()) {
 			if (this.peek() === '\n') {
 				throws(new SyntaxError('Expected string end, but found end of line.'), this.fileName, {
@@ -244,7 +247,7 @@ class LexScanner {
 		this.addToken(TokenType.STRING, this.source.substring(this.start + 1, this.current - 1));
 	}
 
-	private konaInt() {
+	konaInt() {
 		while (this.isDigit(this.peek())) {
 			this.nextChar;
 		}
@@ -257,7 +260,7 @@ class LexScanner {
 		this.addToken(TokenType.NUMBER, Number(this.source.substring(this.start, this.current)));
 	}
 
-	private konaIdentifier() {
+	konaIdentifier() {
 		while (this.isAlphaNum(this.peek())) {
 			this.nextChar();
 		}
@@ -266,7 +269,7 @@ class LexScanner {
 		this.addToken(type);
 	}
 
-	private konaMultiLine(): void {
+	konaMultiLine(): void {
 		while (!(this.current >= this.source.length)) {
 			this.nextChar();
 			if (this.peek() === '*' && this.peek(1) === '/') {
