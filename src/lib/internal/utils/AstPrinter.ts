@@ -11,6 +11,7 @@ import { Unary } from '../../expressions/types/Unary';
 import { Call } from '../../expressions/types/Call';
 import { Variable } from '../../expressions/exp';
 import { Assignment } from '../../expressions/types/Assignment';
+import { LogicalExpr } from '../../expressions/types/Logical';
 class AstPrinter implements ExpVisitors {
 	public print(expr: Expression): string {
 		return expr.accept(this);
@@ -34,6 +35,8 @@ class AstPrinter implements ExpVisitors {
 		}
 		return 'nil';
 	}
+
+	public visitLogical(logical: LogicalExpr) {}
 
 	public visitCall(call: Call): string {
 		return this.parenthesize('Function', new Literal(call.args.join(', ')));
