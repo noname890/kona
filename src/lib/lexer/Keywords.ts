@@ -13,6 +13,7 @@ const Keywords: any = {
 	pub: TokenType.PUBLIC,
 	private: TokenType.PRIVATE,
 	if: TokenType.IF,
+	else: TokenType.ELSE,
 	for: TokenType.FOR,
 	while: TokenType.WHILE,
 	do: TokenType.DO,
@@ -23,8 +24,8 @@ const Keywords: any = {
 	false: TokenType.FALSE,
 	loop: TokenType.LOOP,
 	typeof: TokenType.TYPEOF,
-	sizeof: TokenType.SIZEOF
-	// async: TokenType.ASYNC
+	sizeof: TokenType.SIZEOF,
+	pragma: TokenType.PRAGMA
 };
 
 export { Keywords };
