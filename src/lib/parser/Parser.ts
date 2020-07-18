@@ -7,6 +7,7 @@ import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import * as chalkImport from 'chalk';
 import { Statement } from '../statements/Statements';
 import * as Stmt from '../statements/stmt';
+import { LogicalExpr } from '../expressions/types/Logical';
 
 const chalk = chalkImport.default;
 
@@ -63,6 +64,16 @@ class Parser {
 		if (this.match(TokenType.LEFT_CURLY)) {
 			return new Stmt.BlockStmt(this.block());
 		}
+		if (this.match(TokenType.IF)) {
+			return this.ifStatement();
+		}
+		if (this.match(TokenType.WHILE)) {
+			return this.whileStatement();
+		}
+		if (this.match(TokenType.PRAGMA)) {
+			return this.pragmaStatement();
+		}
+
 		return this.expressionStatement();
 	}
 
@@ -71,9 +82,10 @@ class Parser {
 	}
 
 	private assignment(): Expression {
-		const expression = this.equality();
+		const expression = this.or();
+
 		if (this.match(TokenType.EQ)) {
-			const equals = this.previous();
+			// const equals = this.previous();
 			const value = this.assignment();
 
 			if (expression instanceof Variable) {
@@ -90,6 +102,28 @@ class Parser {
 					exit: true
 				}
 			);
+		}
+		return expression;
+	}
+
+	private or(): Expression {
+		let expression = this.and();
+
+		while (this.match(TokenType.OR)) {
+			const operator = this.previous();
+			const right = this.and();
+			expression = new LogicalExpr(expression, operator, right);
+		}
+		return expression;
+	}
+
+	private and(): Expression {
+		let expression = this.equality();
+
+		while (this.match(TokenType.AND)) {
+			const operator = this.previous();
+			const right = this.equality();
+			expression = new LogicalExpr(expression, operator, right);
 		}
 		return expression;
 	}
@@ -229,6 +263,53 @@ class Parser {
 		const expression: Expression = this.expression();
 		this.expectEndStatement();
 		return new Stmt.ExpressionStmt(expression);
+	}
+
+	private ifStatement(): Statement {
+		this.consume(
+			TokenType.LEFT_PAREN,
+			"Expected '(' after if statement, found '" + this.currentToken().lexeme + "'."
+		);
+		const condition: Expression = this.expression();
+		this.consume(
+			TokenType.RIGHT_PAREN,
+			"Expected ')' after if condition, found '" + this.currentToken().lexeme + "'."
+		);
+		const thenBlock: Statement = this.statement();
+		let elseBlock = null;
+		if (this.match(TokenType.ELSE)) {
+			elseBlock = this.statement();
+		}
+		return new Stmt.IfStmt(condition, thenBlock, elseBlock);
+	}
+
+	private whileStatement(): Statement {
+		this.consume(TokenType.LEFT_PAREN, "Expected '(' after 'while', got '" + this.currentToken().lexeme + "'.");
+		const condition = this.expression();
+		this.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression, got '" + this.currentToken().lexeme + "'.");
+		const body = this.statement();
+
+		return new Stmt.WhileStmt(condition, body);
+	}
+
+	private pragmaStatement(): Statement {
+		const pragmaTarget = this.consume(
+			TokenType.IDENTIFIER,
+			"Expected identifier for pragma target, got '" + this.currentToken().lexeme + "'."
+		);
+		const pragmaArg = this.match(TokenType.IDENTIFIER)
+			? this.previous()
+			: new Token(
+					TokenType.UNDEFINED,
+					'nil',
+					null,
+					this.currentToken().line + 1,
+					this.currentToken().column || 0
+				);
+
+		this.expectEndStatement();
+
+		return new Stmt.PragmaStatement(pragmaTarget as Token, pragmaArg);
 	}
 
 	// ----------STATEMENTS---------- //
