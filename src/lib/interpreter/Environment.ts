@@ -4,8 +4,18 @@ import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceEr
 
 class Environment {
 	private vars: any = {};
+	private pragmas: any = {};
 
 	constructor(private fileName: string, public enclosing: Environment | null) {}
+
+	public getPragma(name: string): any {
+		if (this.pragmas.hasOwnProperty(name)) {
+			return this.pragmas[name];
+		}
+		if (this.enclosing !== null) {
+			return this.enclosing.getPragma(name);
+		}
+	}
 
 	public getVar(name: Token): any {
 		if (this.vars.hasOwnProperty(name.lexeme)) {
@@ -26,6 +36,10 @@ class Environment {
 
 	public define(name: string, value: any): void {
 		this.vars[name] = value;
+	}
+
+	public definePragma(name: string, value: string): void {
+		this.pragmas[name] = value;
 	}
 
 	public assign(name: Token, value: any): null {
