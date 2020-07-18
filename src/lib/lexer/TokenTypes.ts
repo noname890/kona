@@ -3,6 +3,7 @@
 enum TokenTypes {
 	IMPORT = 'IMPORT',
 	EXPORT = 'EXPORT',
+	PRAGMA = 'PRAGMA',
 	AS = 'AS',
 	VAL = 'VAL',
 	CONST = 'CONST',
@@ -39,6 +40,7 @@ enum TokenTypes {
 	ARROW = 'ARROW',
 	PRINT = 'PRINT',
 	IF = 'IF',
+	ELSE = 'ELSE',
 	FOR = 'FOR',
 	LOOP = 'LOOP',
 	ASYNC = 'ASYNC',
