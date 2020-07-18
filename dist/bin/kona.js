@@ -12,7 +12,6 @@ function run(source, fileName) {
     var lexed = new LexScanner_1.LexScanner(source, fileName).scan();
     var parsed = new Parser_1.Parser(lexed, fileName).parse();
     var interpreter = new interpreter_1.Interpreter(fileName);
-    /* eslint no-unneeded-ternary: */
     if (parsed) {
         interpreter.interpret(parsed);
     }
