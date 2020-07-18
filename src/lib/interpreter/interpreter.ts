@@ -60,6 +60,36 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		this.executeBlock(statement.statements, new Environment(this.fileName, this.env));
 	}
 
+	public visitIfStmt(statement: Stmt.IfStmt): void {
+		if (this.isTruthy(this.evaluate(statement.condition))) {
+			this.execute(statement.thenBlock);
+		} else if (statement.elseBlock !== null) {
+			this.execute(statement.elseBlock);
+		}
+	}
+
+	public visitWhileStmt(statement: Stmt.WhileStmt): void {
+		while (this.isTruthy(this.evaluate(statement.condition))) {
+			this.execute(statement.body);
+		}
+	}
+
+	public visitPragmaStmt(statement: Stmt.PragmaStatement): void {
+		this.env.definePragma(statement.pragmaTarget.lexeme, statement.pragmaArg.lexeme);
+	}
+
+	public visitLogical(logical: Expr.LogicalExpr): any {
+		const left = this.evaluate(logical.left);
+
+		if (logical.operator.type === TokenType.OR) {
+			if (this.isTruthy(left)) return left;
+		} else {
+			if (!this.isTruthy(left)) return left;
+		}
+
+		return this.evaluate(logical.right);
+	}
+
 	public visitVar(expression: Expr.Variable): any {
 		return this.env.getVar(expression.name);
 	}
@@ -75,6 +105,16 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	public visitBinary(expression: Expr.Binary): any {
 		const left: any = this.evaluate(expression.leftExp);
 		const right: any = this.evaluate(expression.rightExp);
+
+		if (this.env.getPragma('loose')) {
+			if (left === undefined && right === undefined) {
+				return undefined;
+			}
+			if (left === undefined || right === undefined) {
+				// if left or right are `nil`, return the one that is not `nil`
+				return left || right;
+			}
+		}
 
 		switch (expression.operator.type) {
 			case TokenType.MINUS:
@@ -101,7 +141,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 				this.throwError(
 					new TypeError(
 						"Expected operands to be two strings or two numbers, got '" +
-							typeof left +
+							(typeof left === 'undefined' ? 'nil' : typeof left) +
 							"' and '" +
 							(typeof right === 'undefined' ? 'nil' : typeof right) +
 							"'."
@@ -171,7 +211,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	}
 
 	public isTruthy(val: any): boolean {
-		if (val === null) {
+		if (val === undefined) {
 			return false;
 		}
 		if (typeof val === 'boolean') {
@@ -228,7 +268,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	private checkNumOperand(operator: Token, ...operand: any[]) {
 		for (const i in operand) {
 			if (typeof operand[i] !== 'number') {
-				this.throwTypeError(operator, 'number', typeof operand);
+				this.throwTypeError(operator, 'number', typeof operand[i] === 'undefined' ? 'nil' : typeof operand[i]);
 			}
 		}
 	}
