@@ -1,14 +1,14 @@
 {
-	"name": "ks",
+	"name": "kona",
 	"version": "0.0.1",
 	"description": "",
-	"main": ".prettierrc.js",
+	"main": "dist/bin/kona.js",
 	"directories": {
 		"lib": "lib",
 		"test": "test"
 	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "npx ts-mocha --paths test/**.test.ts",
 		"build": "tsc --target es5",
 		"prepublish": "npm run build"
 	},
@@ -29,6 +29,8 @@
 		"eslint-plugin-promise": "^4.2.1",
 		"eslint-plugin-standard": "^4.0.1",
 		"mocha": "^7.1.2",
+		"ts-mocha": "^7.0.0",
+		"ts-node": "^8.10.1",
 		"typescript": "^3.8.3"
 	},
 	"dependencies": {
