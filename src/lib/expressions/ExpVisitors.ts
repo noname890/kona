@@ -8,6 +8,7 @@ import { Group } from './types/Group';
 import { Call } from './types/Call';
 import { Variable } from './types/Variable';
 import { Assignment } from './types/Assignment';
+import { LogicalExpr } from './types/Logical';
 
 interface ExpVisitors {
 	visitBinary(visitor: Binary): any;
@@ -17,6 +18,7 @@ interface ExpVisitors {
 	visitCall(call: Call): any;
 	visitVar(varExpr: Variable): any;
 	visitAssignment(assignment: Assignment): any;
+	visitLogical(logic: LogicalExpr): any;
 }
 
 export { ExpVisitors };
