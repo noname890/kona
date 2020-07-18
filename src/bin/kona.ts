@@ -12,7 +12,7 @@ function run(source: string, fileName: string) {
 	const lexed = new LexScanner(source, fileName).scan();
 	const parsed = new Parser(lexed, fileName).parse();
 	const interpreter = new Interpreter(fileName);
-	/* eslint no-unneeded-ternary: */
+
 	if (parsed) {
 		interpreter.interpret(parsed);
 	}
