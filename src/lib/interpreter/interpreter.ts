@@ -262,7 +262,8 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			this.fileName,
 			{
 				line: operator.line,
-				column: operator.line ? operator.line : 0,
+				column: operator.line,
+				endColumn: operator.line + operator.lexeme.length,
 				hint: 'TO_BE_REPLACED',
 				exit: true
 			}
@@ -273,6 +274,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		throws(Error, this.fileName, {
 			line: token.line,
 			column: token.column ? token.column : 0,
+			endColumn: (token.column || 0) + token.lexeme.length,
 			hint,
 			exit: true
 		});

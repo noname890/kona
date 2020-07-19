@@ -76,6 +76,7 @@ class LexScanner {
 							? throws(new SyntaxError('Unexpected multiline comment ending.'), this.fileName, {
 									line: this.line + 1,
 									column: this.column,
+									endColumn: this.column,
 									hint: 'TO_BE_REPLACED',
 									exit: true
 								})
@@ -214,6 +215,7 @@ class LexScanner {
 		throws(new SyntaxError("Unexpected character '" + char + "'"), this.fileName, {
 			line: this.line + 1,
 			column: this.column,
+			endColumn: this.column,
 			hint: 'TO_BE_REPLACED',
 			exit: true
 		});
@@ -229,6 +231,7 @@ class LexScanner {
 				throws(new SyntaxError('Expected string end, but found end of line.'), this.fileName, {
 					line: this.line + 1,
 					column: this.column,
+					endColumn: this.column,
 					hint: 'TO_BE_REPLACED',
 					exit: true
 				});
@@ -239,6 +242,7 @@ class LexScanner {
 			throws(new SyntaxError('Expected string end, but found end of file.'), this.fileName, {
 				line: this.line + 1,
 				column: this.column,
+				endColumn: this.column,
 				hint: 'TO_BE_REPLACED',
 				exit: true
 			});
@@ -282,6 +286,7 @@ class LexScanner {
 			throws(new SyntaxError('Expected multiline comment end, but found end of file.'), this.fileName, {
 				line: this.line + 1,
 				column: this.column,
+				endColumn: this.column,
 				hint: 'TO_BE_REPLACED',
 				exit: true
 			});
