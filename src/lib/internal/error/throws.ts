@@ -1,13 +1,12 @@
 import { KonaError } from './errorTypes/InternalKonaError';
-import * as chalkImport from 'chalk';
+import chalk from 'chalk';
 import { ParseError } from './errorTypes/ParseError';
 
-// TypeScript translates the chalk import to __importStar(require('chalk'))
-// and not to require('chalk'), that returns a module object with a property
-// named default
-// so chalk methods aren't accessible without doing this
-
-const chalk = chalkImport.default;
+// // TypeScript translates the chalk import to __importStar(require('chalk'))
+// // and not to require('chalk'), that returns a module object with a property
+// // named default
+// // so chalk methods aren't accessible without doing this
+// i am dumb, i had to do `import chalk from 'chalk'`
 
 function throws(
 	konaerror: KonaError,
