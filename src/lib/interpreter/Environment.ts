@@ -29,7 +29,7 @@ class Environment {
 		throws(new ReferenceError("Undefined variable: '" + name.lexeme + "'."), this.fileName, {
 			line: name.line + 1,
 			column: name.column || 0,
-			code: 'TO_BE_REPLACED',
+			hint: 'TO_BE_REPLACED',
 			exit: true
 		});
 	}
@@ -56,7 +56,7 @@ class Environment {
 		throws(new ReferenceError("Undefined variable: '" + name.lexeme + "'."), this.fileName, {
 			line: name.line + 1,
 			column: name.column || 0,
-			code: 'TO_BE_REPLACED',
+			hint: 'TO_BE_REPLACED',
 			exit: true
 		});
 		return null;

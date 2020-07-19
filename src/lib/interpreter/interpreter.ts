@@ -99,7 +99,8 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		if (expression.name.lexeme === '_' && !this.env.getPragma('allow_underscore_for_var_names')) {
 			this.throwError(
 				new ReferenceError(`Undefined variable '_', variables that are named '_' are not assigned.`),
-				expression.name
+				expression.name,
+				"To use '_' as a valid variable name, put 'pragma allow_underscore_for_var_names' at the top of your file.\nTo learn more about pragmas, visit: https://github.com/kona-lang/kona/wiki/Pragmas"
 			);
 		}
 
@@ -262,17 +263,17 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			{
 				line: operator.line,
 				column: operator.line ? operator.line : 0,
-				code: 'TO_BE_REPLACED',
+				hint: 'TO_BE_REPLACED',
 				exit: true
 			}
 		);
 	}
 
-	private throwError(Error: KonaError, token: Token): void {
+	private throwError(Error: KonaError, token: Token, hint?: string): void {
 		throws(Error, this.fileName, {
 			line: token.line,
 			column: token.column ? token.column : 0,
-			code: 'TO_BE_REPLACED',
+			hint,
 			exit: true
 		});
 	}

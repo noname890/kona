@@ -98,7 +98,7 @@ class Parser {
 				{
 					line: this.currentToken().line + 1,
 					column: this.currentToken().column || 0,
-					code: 'TO_BE_REPLACED',
+					hint: 'TO_BE_REPLACED',
 					exit: true
 				}
 			);
@@ -223,7 +223,7 @@ class Parser {
 		throws(new SyntaxError("Expected expression, got '" + this.currentToken().lexeme + "'"), this.fileName, {
 			line: this.currentToken().line + 1,
 			column: this.currentToken().column || 1,
-			code: 'TO_BE_REPLACED',
+			hint: 'TO_BE_REPLACED',
 			exit: true
 		});
 
@@ -368,7 +368,7 @@ class Parser {
 		throws(new SyntaxError(msg), this.fileName, {
 			line: this.currentToken().line + 1,
 			column: this.currentToken().column || 0,
-			code: 'TO_BE_REPLACED',
+			hint: 'TO_BE_REPLACED',
 			exit: true
 		});
 	}
@@ -386,7 +386,7 @@ class Parser {
 		throws(new SyntaxError(msg), this.fileName, {
 			line: this.currentToken().line + 1,
 			column: this.currentToken().column || 0,
-			code: 'TO_BE_REPLACED',
+			hint: 'TO_BE_REPLACED',
 			exit: true
 		});
 	}
