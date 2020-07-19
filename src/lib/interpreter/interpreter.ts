@@ -49,6 +49,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	public visitVariableStmt(statement: Stmt.VariableStmt): void {
 		let value: any;
 
+		if (statement.name.lexeme === '_' && !this.env.getPragma('allow_underscore_for_var_names')) {
+			return;
+		}
+
 		if (statement.initializer !== undefined) {
 			value = this.evaluate(statement.initializer);
 		}
