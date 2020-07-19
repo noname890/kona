@@ -44,7 +44,9 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	public visitPrintStmt(statement: Stmt.PrintStmt): void {
 		const val: any = this.evaluate(statement.expression);
-		console.log(this.stringify(val));
+		const unescapeJs = require('unescape-js');
+
+		console.log(unescapeJs(this.stringify(val)));
 	}
 
 	public visitVariableStmt(statement: Stmt.VariableStmt): void {
