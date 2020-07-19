@@ -11,11 +11,24 @@ import { ParseError } from './errorTypes/ParseError';
 function throws(
 	konaerror: KonaError,
 	filename: string,
-	info: { line: number; column: number; code: string; exit?: true | false }
+	info: { line: number; column: number; hint?: string; exit?: true | false }
 ) {
-	console.log(chalk.bold.redBright(konaerror.errorType) + ': ' + chalk.whiteBright(konaerror.message));
-	console.log('    ' + chalk.bold.whiteBright(info.code.trim()));
-	console.log(chalk.bold.cyanBright('\n    at: ' + filename + ' ' + info.line + ':' + info.column + '\n'));
+	const INDENTATION = 4;
+	// console.log(chalk.bold.redBright(konaerror.errorType) + ': ' + chalk.whiteBright(konaerror.message));
+	// console.log('    ' + chalk.bold.whiteBright(info.code.trim()));
+	// console.log(chalk.bold.cyanBright('\n    at: ' + filename + ' ' + info.line + ':' + info.column + '\n'));
+
+	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${chalk.italic.grey(filename)}	
+  ${chalk.bold.redBright(konaerror.errorType)}: ${chalk.bold.whiteBright(
+		konaerror.message.replace(/\n\r|\n|\r/, '\n' + ' '.repeat(konaerror.errorType.length + INDENTATION))
+	)}
+  ${info.hint
+		? chalk.bold.underline.cyanBright('Hint') +
+			chalk.cyan(': ' + info.hint.replace(/\n\r|\n|\r/, '\n' + ' '.repeat('Hint'.length + INDENTATION)))
+		: ''}
+${chalk.redBright('------------------------------------')}
+\n`);
+
 	if (info.exit) {
 		process.exit(1);
 	}
