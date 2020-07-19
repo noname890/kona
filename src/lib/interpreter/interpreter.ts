@@ -11,6 +11,7 @@ import { StmtVisitors } from '../statements/StmtVisitors';
 import * as Stmt from '../statements/stmt';
 import { Statement } from '../statements/Statements';
 import { Environment } from './Environment';
+import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
 
 const chalk = chalkImport.default;
 
@@ -95,6 +96,13 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	}
 
 	public visitVar(expression: Expr.Variable): any {
+		if (expression.name.lexeme === '_' && !this.env.getPragma('allow_underscore_for_var_names')) {
+			this.throwError(
+				new ReferenceError(`Undefined variable '_', variables that are named '_' are not assigned.`),
+				expression.name
+			);
+		}
+
 		return this.env.getVar(expression.name);
 	}
 
