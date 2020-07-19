@@ -23,6 +23,7 @@ module.exports = {
 		'no-unused-expressions': 'off',
 		'no-unused-vars': 'off',
 		eqeqeq: 'off',
-		'no-prototype-builtins': 'off'
+		'no-prototype-builtins': 'off',
+		quotes: 'off'
 	}
 };
