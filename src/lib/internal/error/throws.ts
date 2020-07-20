@@ -29,10 +29,18 @@ function findShortestWhitespaceAmount(array: string[]): number {
 	return 0;
 }
 
+interface ErrorInfo {
+	line: number;
+	column: number;
+	endColumn: number;
+	hint?: string;
+	exit?: true | false;
+}
+
 function throws(
 	konaerror: KonaError,
 	filename: string,
-	info: { line: number; column: number; endColumn: number; hint?: string; exit?: true | false }
+	info: ErrorInfo
 ) {
 	const INDENTATION = 4;
 	const NEW_LINE_REGEX = /\r?\n/g;
