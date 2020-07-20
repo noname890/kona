@@ -8,6 +8,7 @@ import * as chalkImport from 'chalk';
 import { Statement } from '../statements/Statements';
 import * as Stmt from '../statements/stmt';
 import { LogicalExpr } from '../expressions/types/Logical';
+import { Keywords } from '../lexer/Keywords';
 
 const chalk = chalkImport.default;
 
@@ -82,7 +83,9 @@ class Parser {
 	}
 
 	private assignment(): Expression {
+		const token = this.currentToken();
 		const expression = this.or();
+		const column = (token.column || 1) - token.lexeme.length;
 
 		if (this.match(TokenType.EQ)) {
 			// const equals = this.previous();
@@ -92,17 +95,12 @@ class Parser {
 				return new Assignment(expression.name, value);
 			}
 
-			throws(
-				new SyntaxError("Tried to assign to type '" + typeof expression + "'. Expected variable."),
-				this.fileName,
-				{
-					line: this.currentToken().line + 1,
-					column: this.currentToken().column || 0,
-					endColumn: this.currentToken().column || 0,
-					hint: 'TO_BE_REPLACED',
-					exit: true
-				}
-			);
+			throws(new SyntaxError("Tried to assign to '" + token.lexeme + "'. Expected variable."), this.fileName, {
+				line: this.currentToken().line + 1,
+				column,
+				endColumn: (token.column || 1) + 1,
+				exit: true
+			});
 		}
 		return expression;
 	}
@@ -238,9 +236,16 @@ class Parser {
 	// ----------STATEMENTS---------- //
 
 	private varDeclaration(): Statement | undefined {
+		const HINT = 'You cannot use expressions (e.g. 2 + 2) or keywords (e.g. while) as valid variable names.';
 		const name: Token | undefined = this.consume(
 			TokenType.IDENTIFIER,
-			"Expected identifier, got '" + this.currentToken().literal + "'."
+			"Expected identifier, got '" + this.currentToken().lexeme.replace(/'/g, '') + "'.",
+			this.currentToken().type === TokenType.NUMBER || this.currentToken().lexeme in Keywords
+				? HINT +
+					"\nYou can solve this by using '_" +
+					this.currentToken().lexeme +
+					"' as a variable name,\nor choose another non-conflicting name.\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords."
+				: HINT + '\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords.'
 		);
 		let initializer: Expression = new Literal(undefined);
 
@@ -362,16 +367,17 @@ class Parser {
 		return this.previous();
 	}
 
-	private consume(type: TokenType, msg: string): Token | undefined {
+	private consume(type: TokenType, msg: string, hint?: string): Token | undefined {
 		if (this.currentToken().type === type) {
 			return this.advance();
 		}
+		const realColumn = (this.currentToken().column || 0) + 1 - this.currentToken().lexeme.length;
 
 		throws(new SyntaxError(msg), this.fileName, {
-			line: this.currentToken().line + 1,
-			column: this.currentToken().column || 0,
-			endColumn: this.currentToken().column || 1,
-			hint: 'TO_BE_REPLACED',
+			line: this.currentToken().line,
+			column: realColumn,
+			endColumn: realColumn + this.currentToken().lexeme.length,
+			hint,
 			exit: true
 		});
 	}
@@ -387,7 +393,7 @@ class Parser {
 			}
 		}
 		throws(new SyntaxError(msg), this.fileName, {
-			line: this.currentToken().line + 1,
+			line: this.currentToken().line,
 			column: this.currentToken().column || 0,
 			endColumn: this.currentToken().column || 1,
 			hint: 'TO_BE_REPLACED',

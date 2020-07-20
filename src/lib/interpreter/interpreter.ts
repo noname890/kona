@@ -99,10 +99,12 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	public visitVar(expression: Expr.Variable): any {
 		if (expression.name.lexeme === '_' && !this.env.getPragma('allow_underscore_for_var_names')) {
+			expression.name.column = (expression.name.column || 0) - 1;
+
 			this.throwError(
-				new ReferenceError(`Undefined variable '_', variables that are named '_' are not assigned.`),
+				new ReferenceError(`Undefined variable '_'.\nVariables that are named '_' are not assigned.`),
 				expression.name,
-				"To use '_' as a valid variable name, put 'pragma allow_underscore_for_var_names' at the top of your file.\nTo learn more about pragmas, visit: https://github.com/kona-lang/kona/wiki/Pragmas"
+				"To use '_' as a valid variable name, put 'pragma allow_underscore_for_var_names'\nat the top of your file.\nTo learn more about pragmas, visit: https://github.com/kona-lang/kona/wiki/Pragmas"
 			);
 		}
 
@@ -146,7 +148,6 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 				return left / right;
 			case TokenType.PLUS:
 				// those ifs are here to prevent js type conversion
-
 				if (typeof left === 'number' && typeof right === 'number') {
 					return left + right;
 				}
@@ -251,12 +252,14 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	}
 
 	private throwTypeError(operator: Token, expected: string, got: string) {
+		const isNil = got == undefined ? 'nil' : got;
+
 		throws(
 			new TypeError(
 				"Expected operand of type '" +
 					expected +
 					"', but got '" +
-					(got == undefined ? 'nil' : got) +
+					isNil +
 					"' on operator '" +
 					operator.lexeme +
 					"'."
@@ -264,9 +267,12 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			this.fileName,
 			{
 				line: operator.line,
-				column: operator.line,
-				endColumn: operator.line + operator.lexeme.length,
-				hint: 'TO_BE_REPLACED',
+				column: (operator.column || 1) - operator.lexeme.length + 1,
+				endColumn: (operator.column || 1) + 1,
+				hint:
+					isNil == 'nil'
+						? "If you don't want strict operations,\nyou could use 'pragma loose;'. This is not recommended, as it can lead\nto unexpected results.\nTo learn more about pragmas, visit: https://github.com/kona-lang/kona/wiki/Pragmas."
+						: undefined,
 				exit: true
 			}
 		);

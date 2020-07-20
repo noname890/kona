@@ -1,3 +1,5 @@
+/* eslint array-bracket-spacing: */
+
 import { KonaError } from './errorTypes/InternalKonaError';
 import chalk from 'chalk';
 import { ParseError } from './errorTypes/ParseError';
@@ -14,7 +16,7 @@ function findShortestWhitespaceAmount(array: string[]): number {
 
 	if (sorted[0]) {
 		while (sorted[0].trim() === '') {
-			sorted.pop();
+			sorted.unshift();
 		}
 
 		if (sorted[0]) {
@@ -32,20 +34,19 @@ function throws(
 	filename: string,
 	info: { line: number; column: number; endColumn: number; hint?: string; exit?: true | false }
 ) {
-	info.column -= 1;
-	info.endColumn -= 1;
-
 	const INDENTATION = 4;
 	const NEW_LINE_REGEX = /\r?\n/g;
+	const ERROR_ORIGIN = `${chalk.italic.grey(filename + ' at ' + String(info.line) + ':' + String(info.column))}`;
+
 	// grabs the file, splits by newline, and grabs 9 lines
-	const file = readFileSync(filename, 'utf8')
-		.split(NEW_LINE_REGEX)
-		.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 4);
-	/* eslint array-bracket-spacing: */
+	const file = readFileSync(filename, 'utf8').split(NEW_LINE_REGEX);
+
+	// because slice gives back a shill copy i have to clone it like this, otherwise it gets sorted
 	const shortestWhitespaceAmount = findShortestWhitespaceAmount([ ...file ]);
 	const formattedFile = file
+		.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 4 > file.length ? file.length : info.line + 4)
 		.map((val, index) => {
-			const lineNumber = index + (info.line - 3);
+			const lineNumber = index + (info.line - 3 < 0 ? 1 : info.line - 3);
 			const newVal = val.substring(shortestWhitespaceAmount);
 
 			info.column -= shortestWhitespaceAmount;
@@ -63,20 +64,17 @@ function throws(
 			return chalk.bold.grey(lineNumber) + ' │ ' + chalk.bold.whiteBright(newVal);
 		})
 		.join('\n  ');
-
-	// console.log(chalk.bold.redBright(konaerror.errorType) + ': ' + chalk.whiteBright(konaerror.message));
-	// console.log('    ' + chalk.bold.whiteBright(info.code.trim()));
-	// console.log(chalk.bold.cyanBright('\n    at: ' + filename + ' ' + info.line + ':' + info.column + '\n'));
-
-	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${chalk.italic.grey(filename)}	
+	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${ERROR_ORIGIN}	
   ${chalk.bold.redBright(konaerror.errorType)}: ${chalk.bold.whiteBright(
+		// we format newlines to be indented based on where the first line of the error message starts
 		konaerror.message.replace(NEW_LINE_REGEX, '\n' + ' '.repeat(konaerror.errorType.length + INDENTATION))
 	)}
   
   ${formattedFile}
-
   ${info.hint
-		? chalk.bold.underline.cyanBright('Hint') +
+		? '\n' +
+			' '.repeat(INDENTATION / 2) +
+			chalk.bold.underline.cyanBright('Hint') +
 			chalk.cyan(': ' + info.hint.replace(NEW_LINE_REGEX, '\n' + ' '.repeat('Hint'.length + INDENTATION)))
 		: ''}
 ${chalk.redBright('------------------------------------')}
@@ -85,7 +83,6 @@ ${chalk.redBright('------------------------------------')}
 	if (info.exit) {
 		process.exit(1);
 	}
-	throw new ParseError();
 }
 
 export { throws };
