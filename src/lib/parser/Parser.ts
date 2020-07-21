@@ -4,13 +4,10 @@ import { TokenType } from '../lexer/TokenTypes';
 import { Binary, Literal, Unary, Group, Variable, Assignment } from '../expressions/exp';
 import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
-import * as chalkImport from 'chalk';
 import { Statement } from '../statements/Statements';
 import * as Stmt from '../statements/stmt';
 import { LogicalExpr } from '../expressions/types/Logical';
 import { Keywords } from '../lexer/Keywords';
-
-const chalk = chalkImport.default;
 
 class Parser {
 	private current: number = 0;
@@ -25,22 +22,6 @@ class Parser {
 		}
 
 		return statements;
-		/*
-		try {
-			return this.expression();
-		} catch (e) {
-			if (e.name === 'ParseError') {
-				return null;
-			}
-			console.log(
-				chalk.bold.redBright('INTERNAL: ') +
-					chalk.bold.whiteBright(
-						'This is an internal error, please report this immediatly with the stacktrace below.'
-					)
-			);
-			throw e;
-		}
-		*/
 	}
 
 	// ----------RULES---------- //
@@ -96,9 +77,9 @@ class Parser {
 			}
 
 			throws(new SyntaxError("Tried to assign to '" + token.lexeme + "'. Expected variable."), this.fileName, {
-				line: this.currentToken().line + 1,
+				line: this.currentToken().line,
 				column,
-				endColumn: (token.column || 1) + 1,
+				endColumn: token.column || 1,
 				exit: true
 			});
 		}
@@ -219,11 +200,19 @@ class Parser {
 			return new Variable(this.previous());
 		}
 
+		if (this.currentToken().type === TokenType.EOF) {
+			throws(new SyntaxError('Expected expression, found end of file.'), this.fileName, {
+				line: this.previous().line,
+				column: (this.previous().column || 1) - this.previous().lexeme.length,
+				endColumn: this.previous().column || 1,
+				exit: true
+			});
+		}
+
 		throws(new SyntaxError("Expected expression, got '" + this.currentToken().lexeme + "'"), this.fileName, {
-			line: this.currentToken().line + 1,
-			column: this.currentToken().column || 1,
-			endColumn: this.currentToken().column || 1,
-			hint: 'TO_BE_REPLACED',
+			line: this.previous().line,
+			column: (this.previous().column || 1) - this.previous().lexeme.length,
+			endColumn: this.previous().column || 1,
 			exit: true
 		});
 
@@ -306,13 +295,7 @@ class Parser {
 		);
 		const pragmaArg = this.match(TokenType.IDENTIFIER)
 			? this.previous()
-			: new Token(
-					TokenType.UNDEFINED,
-					'nil',
-					null,
-					this.currentToken().line + 1,
-					this.currentToken().column || 0
-				);
+			: new Token(TokenType.UNDEFINED, 'nil', null, this.currentToken().line, this.currentToken().column || 0);
 
 		this.expectEndStatement();
 
@@ -371,12 +354,12 @@ class Parser {
 		if (this.currentToken().type === type) {
 			return this.advance();
 		}
-		const realColumn = (this.currentToken().column || 0) + 1 - this.currentToken().lexeme.length;
+		const realColumn = (this.currentToken().column || 1) - this.currentToken().lexeme.length;
 
 		throws(new SyntaxError(msg), this.fileName, {
 			line: this.currentToken().line,
 			column: realColumn,
-			endColumn: realColumn + this.currentToken().lexeme.length,
+			endColumn: this.currentToken().column || 1,
 			hint,
 			exit: true
 		});

@@ -11,7 +11,7 @@ class LexScanner {
 	public start: number = 0;
 	public current: number = 0;
 	public line: number = 0;
-	public column: number = 0;
+	public column: number = 1;
 
 	constructor(public source: string, public fileName: string) {}
 

@@ -107,7 +107,6 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 				"To use '_' as a valid variable name, put 'pragma allow_underscore_for_var_names'\nat the top of your file.\nTo learn more about pragmas, visit: https://github.com/kona-lang/kona/wiki/Pragmas"
 			);
 		}
-
 		return this.env.getVar(expression.name);
 	}
 
@@ -267,8 +266,8 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			this.fileName,
 			{
 				line: operator.line,
-				column: (operator.column || 1) - operator.lexeme.length + 1,
-				endColumn: (operator.column || 1) + 1,
+				column: (operator.column || 1) - operator.lexeme.length,
+				endColumn: (operator.column || 1),
 				hint:
 					isNil == 'nil'
 						? "If you don't want strict operations,\nyou could use 'pragma loose;'. This is not recommended, as it can lead\nto unexpected results.\nTo learn more about pragmas, visit: https://github.com/kona-lang/kona/wiki/Pragmas."
