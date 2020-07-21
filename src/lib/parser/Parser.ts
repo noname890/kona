@@ -377,9 +377,8 @@ class Parser {
 		}
 		throws(new SyntaxError(msg), this.fileName, {
 			line: this.currentToken().line,
-			column: this.currentToken().column || 0,
+			column: (this.currentToken().column || 1) - this.currentToken().lexeme.length,
 			endColumn: this.currentToken().column || 1,
-			hint: 'TO_BE_REPLACED',
 			exit: true
 		});
 	}
