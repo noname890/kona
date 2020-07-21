@@ -16,11 +16,13 @@ function findShortestWhitespaceAmount(array: string[]): number {
 
 	if (sorted[0]) {
 		while (sorted[0].trim() === '') {
+			console.log('bruh');
 			sorted.shift();
 		}
 
-		if (sorted[0]) {
+		if ((sorted[0] as unknown) as boolean) {
 			const shortest = sorted[0].search(/\S/);
+			console.log(shortest);
 
 			return shortest < 0 ? 0 : shortest;
 		}
@@ -42,30 +44,31 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const NEW_LINE_REGEX = /\r?\n/g;
 	const ERROR_ORIGIN = `${chalk.italic.grey(filename + ' at ' + String(info.line) + ':' + String(info.column))}`;
 
-	// grabs the file, splits by newline, and grabs 9 lines
+	// grabs the file, splits by newline, and grabs 8 lines
 	const file = readFileSync(filename, 'utf8').split(NEW_LINE_REGEX);
 
 	// because slice gives back a shill copy i have to clone it like this, otherwise it gets sorted
-	const shortestWhitespaceAmount = findShortestWhitespaceAmount([ ...file ]);
+	const shortestWhitespaceAmount = findShortestWhitespaceAmount([
+		...file.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 3 > file.length ? file.length : info.line + 3)
+	]);
 	const formattedFile = file
-		.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 4 > file.length ? file.length : info.line + 4)
+		.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 3 > file.length ? file.length : info.line + 3)
 		.map((val, index) => {
 			const lineNumber = index + (info.line - 3 < 0 ? 1 : info.line - 3);
-			const newVal = val.substring(shortestWhitespaceAmount);
 
-			info.column -= shortestWhitespaceAmount;
-			info.endColumn -= shortestWhitespaceAmount;
+			// info.column -= shortestWhitespaceAmount;
+			// info.endColumn -= shortestWhitespaceAmount;
 
 			if (lineNumber === info.line) {
 				const errorHighlight =
-					newVal.substring(0, info.column - 1) +
-					chalk.bold.redBright(newVal.substring(info.column - 1, info.endColumn - 1)) +
-					newVal.substring(info.endColumn - 1);
+					val.substring(0, info.column - 1) +
+					chalk.bold.redBright(val.substring(info.column - 1, info.endColumn - 1)) +
+					val.substring(info.endColumn - 1);
 				return (
 					' '.repeat(String(info.line).length - String(lineNumber).length) +
 					chalk.bold.redBright(lineNumber) +
 					' │ ' +
-					chalk.bold.whiteBright(errorHighlight)
+					chalk.bold.whiteBright(errorHighlight.substring(shortestWhitespaceAmount))
 				);
 			}
 
@@ -73,7 +76,7 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 				' '.repeat(String(info.line).length - String(lineNumber).length) +
 				chalk.bold.grey(lineNumber) +
 				' │ ' +
-				chalk.bold.whiteBright(newVal)
+				chalk.bold.whiteBright(val.substring(shortestWhitespaceAmount))
 			);
 		})
 		.join('\n  ');
