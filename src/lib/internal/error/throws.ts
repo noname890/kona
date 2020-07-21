@@ -61,11 +61,20 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 					newVal.substring(0, info.column - 1) +
 					chalk.bold.redBright(newVal.substring(info.column - 1, info.endColumn - 1)) +
 					newVal.substring(info.endColumn - 1);
-
-				return chalk.bold.redBright(lineNumber) + ' │ ' + chalk.bold.whiteBright(errorHighlight);
+				return (
+					' '.repeat(String(info.line).length - String(lineNumber).length) +
+					chalk.bold.redBright(lineNumber) +
+					' │ ' +
+					chalk.bold.whiteBright(errorHighlight)
+				);
 			}
 
-			return chalk.bold.grey(lineNumber) + ' │ ' + chalk.bold.whiteBright(newVal);
+			return (
+				' '.repeat(String(info.line).length - String(lineNumber).length) +
+				chalk.bold.grey(lineNumber) +
+				' │ ' +
+				chalk.bold.whiteBright(newVal)
+			);
 		})
 		.join('\n  ');
 	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${ERROR_ORIGIN}	
