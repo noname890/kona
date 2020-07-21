@@ -16,7 +16,7 @@ function findShortestWhitespaceAmount(array: string[]): number {
 
 	if (sorted[0]) {
 		while (sorted[0].trim() === '') {
-			sorted.unshift();
+			sorted.shift();
 		}
 
 		if (sorted[0]) {
@@ -37,11 +37,7 @@ interface ErrorInfo {
 	exit?: true | false;
 }
 
-function throws(
-	konaerror: KonaError,
-	filename: string,
-	info: ErrorInfo
-) {
+function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const INDENTATION = 4;
 	const NEW_LINE_REGEX = /\r?\n/g;
 	const ERROR_ORIGIN = `${chalk.italic.grey(filename + ' at ' + String(info.line) + ':' + String(info.column))}`;
