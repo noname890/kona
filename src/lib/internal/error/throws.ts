@@ -2,7 +2,6 @@
 
 import { KonaError } from './errorTypes/InternalKonaError';
 import chalk from 'chalk';
-import { ParseError } from './errorTypes/ParseError';
 import { readFileSync } from 'fs';
 
 // // TypeScript translates the chalk import to __importStar(require('chalk'))
