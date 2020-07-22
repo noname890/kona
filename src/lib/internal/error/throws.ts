@@ -16,13 +16,11 @@ function findShortestWhitespaceAmount(array: string[]): number {
 
 	if (sorted[0]) {
 		while (sorted[0].trim() === '') {
-			console.log('bruh');
 			sorted.shift();
 		}
 
 		if ((sorted[0] as unknown) as boolean) {
 			const shortest = sorted[0].search(/\S/);
-			console.log(shortest);
 
 			return shortest < 0 ? 0 : shortest;
 		}
