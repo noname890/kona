@@ -3,6 +3,7 @@
 import { KonaError } from './errorTypes/InternalKonaError';
 import chalk from 'chalk';
 import { readFileSync } from 'fs';
+import { normalize } from 'path';
 
 // // TypeScript translates the chalk import to __importStar(require('chalk'))
 // // and not to require('chalk'), that returns a module object with a property
@@ -39,7 +40,9 @@ interface ErrorInfo {
 function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const INDENTATION = 4;
 	const NEW_LINE_REGEX = /\r?\n/g;
-	const ERROR_ORIGIN = `${chalk.italic.grey(filename + ' at ' + String(info.line) + ':' + String(info.column))}`;
+	const ERROR_ORIGIN = `${chalk.italic.grey(
+		normalize(filename) + ' at ' + String(info.line) + ':' + String(info.column)
+	)}`;
 
 	// grabs the file, splits by newline, and grabs 8 lines
 	const file = readFileSync(filename, 'utf8').split(NEW_LINE_REGEX);
@@ -77,6 +80,7 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 			);
 		})
 		.join('\n  ');
+
 	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${ERROR_ORIGIN}	
   ${chalk.bold.redBright(konaerror.errorType)}: ${chalk.bold.whiteBright(
 		// we format newlines to be indented based on where the first line of the error message starts
