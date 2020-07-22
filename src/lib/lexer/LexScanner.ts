@@ -11,7 +11,7 @@ class LexScanner {
 	public start: number = 0;
 	public current: number = 0;
 	public line: number = 0;
-	public column: number = 0;
+	public column: number = 1;
 
 	constructor(public source: string, public fileName: string) {}
 
@@ -76,7 +76,7 @@ class LexScanner {
 							? throws(new SyntaxError('Unexpected multiline comment ending.'), this.fileName, {
 									line: this.line + 1,
 									column: this.column,
-									hint: 'TO_BE_REPLACED',
+									endColumn: this.column,
 									exit: true
 								})
 							: TokenType.MULTIPLY
@@ -160,7 +160,7 @@ class LexScanner {
 		if (typeof type === 'undefined') {
 			return;
 		}
-		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line, this.column));
+		this.tokens.push(new Token(type, text, literal === undefined ? null : literal, this.line + 1, this.column));
 	}
 
 	match(expected: string): boolean {
@@ -214,7 +214,7 @@ class LexScanner {
 		throws(new SyntaxError("Unexpected character '" + char + "'"), this.fileName, {
 			line: this.line + 1,
 			column: this.column,
-			hint: 'TO_BE_REPLACED',
+			endColumn: this.column + 1,
 			exit: true
 		});
 	}
@@ -228,8 +228,8 @@ class LexScanner {
 			if (this.peek() === '\n') {
 				throws(new SyntaxError('Expected string end, but found end of line.'), this.fileName, {
 					line: this.line + 1,
-					column: this.column,
-					hint: 'TO_BE_REPLACED',
+					column: this.column - 1,
+					endColumn: this.column,
 					exit: true
 				});
 			}
@@ -238,8 +238,8 @@ class LexScanner {
 		if (this.isEnd()) {
 			throws(new SyntaxError('Expected string end, but found end of file.'), this.fileName, {
 				line: this.line + 1,
-				column: this.column,
-				hint: 'TO_BE_REPLACED',
+				column: this.column - 1,
+				endColumn: this.column,
 				exit: true
 			});
 		}
@@ -249,7 +249,7 @@ class LexScanner {
 
 	konaInt() {
 		while (this.isDigit(this.peek())) {
-			this.nextChar;
+			this.nextChar();
 		}
 
 		if (this.peek() === '.' && this.isDigit(this.peek(1))) {
@@ -282,7 +282,7 @@ class LexScanner {
 			throws(new SyntaxError('Expected multiline comment end, but found end of file.'), this.fileName, {
 				line: this.line + 1,
 				column: this.column,
-				hint: 'TO_BE_REPLACED',
+				endColumn: this.column,
 				exit: true
 			});
 		}

@@ -27,9 +27,9 @@ class Environment {
 		}
 
 		throws(new ReferenceError("Undefined variable: '" + name.lexeme + "'."), this.fileName, {
-			line: name.line + 1,
-			column: name.column || 0,
-			hint: 'TO_BE_REPLACED',
+			line: name.line,
+			column: (name.column || 1) - name.lexeme.length,
+			endColumn: name.column || 1,
 			exit: true
 		});
 	}
@@ -54,9 +54,9 @@ class Environment {
 		}
 
 		throws(new ReferenceError("Undefined variable: '" + name.lexeme + "'."), this.fileName, {
-			line: name.line + 1,
-			column: name.column || 0,
-			hint: 'TO_BE_REPLACED',
+			line: name.line,
+			column: (name.column || 0) - name.lexeme.length,
+			endColumn: name.column || 0,
 			exit: true
 		});
 		return null;

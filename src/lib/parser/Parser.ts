@@ -4,12 +4,10 @@ import { TokenType } from '../lexer/TokenTypes';
 import { Binary, Literal, Unary, Group, Variable, Assignment } from '../expressions/exp';
 import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
-import * as chalkImport from 'chalk';
 import { Statement } from '../statements/Statements';
 import * as Stmt from '../statements/stmt';
 import { LogicalExpr } from '../expressions/types/Logical';
-
-const chalk = chalkImport.default;
+import { Keywords } from '../lexer/Keywords';
 
 class Parser {
 	private current: number = 0;
@@ -24,22 +22,6 @@ class Parser {
 		}
 
 		return statements;
-		/*
-		try {
-			return this.expression();
-		} catch (e) {
-			if (e.name === 'ParseError') {
-				return null;
-			}
-			console.log(
-				chalk.bold.redBright('INTERNAL: ') +
-					chalk.bold.whiteBright(
-						'This is an internal error, please report this immediatly with the stacktrace below.'
-					)
-			);
-			throw e;
-		}
-		*/
 	}
 
 	// ----------RULES---------- //
@@ -82,7 +64,9 @@ class Parser {
 	}
 
 	private assignment(): Expression {
+		const token = this.currentToken();
 		const expression = this.or();
+		const column = (token.column || 1) - token.lexeme.length;
 
 		if (this.match(TokenType.EQ)) {
 			// const equals = this.previous();
@@ -92,16 +76,12 @@ class Parser {
 				return new Assignment(expression.name, value);
 			}
 
-			throws(
-				new SyntaxError("Tried to assign to type '" + typeof expression + "'. Expected variable."),
-				this.fileName,
-				{
-					line: this.currentToken().line + 1,
-					column: this.currentToken().column || 0,
-					hint: 'TO_BE_REPLACED',
-					exit: true
-				}
-			);
+			throws(new SyntaxError("Tried to assign to '" + token.lexeme + "'. Expected variable."), this.fileName, {
+				line: this.currentToken().line,
+				column,
+				endColumn: token.column || 1,
+				exit: true
+			});
 		}
 		return expression;
 	}
@@ -220,10 +200,19 @@ class Parser {
 			return new Variable(this.previous());
 		}
 
+		if (this.currentToken().type === TokenType.EOF) {
+			throws(new SyntaxError('Expected expression, found end of file.'), this.fileName, {
+				line: this.previous().line,
+				column: (this.previous().column || 1) - this.previous().lexeme.length,
+				endColumn: this.previous().column || 1,
+				exit: true
+			});
+		}
+
 		throws(new SyntaxError("Expected expression, got '" + this.currentToken().lexeme + "'"), this.fileName, {
-			line: this.currentToken().line + 1,
-			column: this.currentToken().column || 1,
-			hint: 'TO_BE_REPLACED',
+			line: this.previous().line,
+			column: (this.previous().column || 1) - this.previous().lexeme.length,
+			endColumn: this.previous().column || 1,
 			exit: true
 		});
 
@@ -236,9 +225,16 @@ class Parser {
 	// ----------STATEMENTS---------- //
 
 	private varDeclaration(): Statement | undefined {
+		const HINT = 'You cannot use expressions (e.g. 2 + 2) or keywords (e.g. while) as valid variable names.';
 		const name: Token | undefined = this.consume(
 			TokenType.IDENTIFIER,
-			"Expected identifier, got '" + this.currentToken().literal + "'."
+			"Expected identifier, got '" + this.currentToken().lexeme.replace(/'/g, '') + "'.",
+			this.currentToken().type === TokenType.NUMBER || this.currentToken().lexeme in Keywords
+				? HINT +
+					"\nYou can solve this by using '_" +
+					this.currentToken().lexeme +
+					"' as a variable name,\nor choose another non-conflicting name.\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords."
+				: HINT + '\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords.'
 		);
 		let initializer: Expression = new Literal(undefined);
 
@@ -299,13 +295,7 @@ class Parser {
 		);
 		const pragmaArg = this.match(TokenType.IDENTIFIER)
 			? this.previous()
-			: new Token(
-					TokenType.UNDEFINED,
-					'nil',
-					null,
-					this.currentToken().line + 1,
-					this.currentToken().column || 0
-				);
+			: new Token(TokenType.UNDEFINED, 'nil', null, this.currentToken().line, this.currentToken().column || 0);
 
 		this.expectEndStatement();
 
@@ -360,15 +350,17 @@ class Parser {
 		return this.previous();
 	}
 
-	private consume(type: TokenType, msg: string): Token | undefined {
+	private consume(type: TokenType, msg: string, hint?: string): Token | undefined {
 		if (this.currentToken().type === type) {
 			return this.advance();
 		}
+		const realColumn = (this.currentToken().column || 1) - this.currentToken().lexeme.length;
 
 		throws(new SyntaxError(msg), this.fileName, {
-			line: this.currentToken().line + 1,
-			column: this.currentToken().column || 0,
-			hint: 'TO_BE_REPLACED',
+			line: this.currentToken().line,
+			column: realColumn,
+			endColumn: this.currentToken().column || 1,
+			hint,
 			exit: true
 		});
 	}
@@ -384,9 +376,9 @@ class Parser {
 			}
 		}
 		throws(new SyntaxError(msg), this.fileName, {
-			line: this.currentToken().line + 1,
-			column: this.currentToken().column || 0,
-			hint: 'TO_BE_REPLACED',
+			line: this.currentToken().line,
+			column: (this.currentToken().column || 1) - this.currentToken().lexeme.length,
+			endColumn: this.currentToken().column || 1,
 			exit: true
 		});
 	}

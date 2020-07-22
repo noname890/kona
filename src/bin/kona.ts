@@ -4,7 +4,15 @@ import { Parser } from '../lib/parser/Parser';
 import { readFileSync } from 'fs';
 
 if (process.argv[2] && process.argv.length < 4) {
-	run(readFileSync(process.argv[2], 'utf8'), process.argv[2]);
+	let file;
+	try {
+		file = readFileSync(process.argv[2], 'utf8');
+	} catch (e) {
+		console.log('file not found');
+		process.exit(1)
+	}
+
+	run(file, process.argv[2]);
 }
 
 function run(source: string, fileName: string) {
