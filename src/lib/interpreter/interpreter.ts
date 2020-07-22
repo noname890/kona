@@ -6,14 +6,12 @@ import { Token } from '../lexer/Token';
 import { throws } from '../internal/error/throws';
 import { TypeError } from '../internal/error/errorTypes/runtime/TypeError';
 import { KonaError } from '../internal/error/errorTypes/InternalKonaError';
-import * as chalkImport from 'chalk';
+import chalk from 'chalk';
 import { StmtVisitors } from '../statements/StmtVisitors';
 import * as Stmt from '../statements/stmt';
 import { Statement } from '../statements/Statements';
 import { Environment } from './Environment';
 import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
-
-const chalk = chalkImport.default;
 
 class Interpreter implements ExpVisitors, StmtVisitors {
 	private env = new Environment(this.fileName, null);
@@ -267,7 +265,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			{
 				line: operator.line,
 				column: (operator.column || 1) - operator.lexeme.length,
-				endColumn: (operator.column || 1),
+				endColumn: operator.column || 1,
 				hint:
 					isNil == 'nil'
 						? "If you don't want strict operations,\nyou could use 'pragma loose;'. This is not recommended, as it can lead\nto unexpected results.\nTo learn more about pragmas, visit: https://github.com/kona-lang/kona/wiki/Pragmas."
