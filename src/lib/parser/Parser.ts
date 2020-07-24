@@ -210,9 +210,9 @@ class Parser {
 		}
 
 		throws(new SyntaxError("Expected expression, got '" + this.currentToken().lexeme + "'"), this.fileName, {
-			line: this.previous().line,
-			column: (this.previous().column || 1) - this.previous().lexeme.length,
-			endColumn: this.previous().column || 1,
+			line: this.currentToken().line,
+			column: (this.currentToken().column || 1) - this.currentToken().lexeme.length,
+			endColumn: this.currentToken().column || 1,
 			exit: true
 		});
 
