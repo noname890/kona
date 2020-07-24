@@ -52,6 +52,9 @@ class Parser {
 		if (this.match(TokenType.WHILE)) {
 			return this.whileStatement();
 		}
+		if (this.match(TokenType.FOR)) {
+			return this.forStatement();
+		}
 		if (this.match(TokenType.PRAGMA)) {
 			return this.pragmaStatement();
 		}
@@ -286,6 +289,51 @@ class Parser {
 		const body = this.statement();
 
 		return new Stmt.WhileStmt(condition, body);
+	}
+
+	private forStatement(): Statement {
+		let initializer: Statement | undefined;
+		let condition: Expression;
+		let increment: Expression;
+		let body: Statement;
+
+		this.consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
+
+		if (this.match(TokenType.SEMI_COL)) {
+			initializer = undefined;
+		} else if (this.match(TokenType.VAL)) {
+			initializer = this.varDeclaration();
+		} else {
+			initializer = this.expressionStatement();
+		}
+
+		if (!this.check(TokenType.SEMI_COL)) {
+			condition = this.expression();
+		}
+		this.consume(TokenType.SEMI_COL, "Expected ';' after for loop condition.");
+
+		if (!this.check(TokenType.RIGHT_PAREN)) {
+			increment = this.expression();
+		}
+		this.consume(TokenType.RIGHT_PAREN, "Expected ')' after for loop clause.");
+
+		body = this.statement();
+
+		// @ts-ignore
+		if (increment) {
+			body = new Stmt.BlockStmt([ body, new Stmt.ExpressionStmt(increment) ]);
+		}
+		// @ts-ignore
+		if (!condition) {
+			condition = new Literal(true);
+		}
+		body = new Stmt.WhileStmt(condition, body);
+
+		if (initializer) {
+			body = new Stmt.BlockStmt([ initializer, body ]);
+		}
+
+		return body;
 	}
 
 	private pragmaStatement(): Statement {
