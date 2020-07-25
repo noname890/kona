@@ -24,6 +24,7 @@ module.exports = {
 		'no-unused-vars': 'off',
 		eqeqeq: 'off',
 		'no-prototype-builtins': 'off',
-		quotes: 'off'
+		quotes: 'off',
+		'array-bracket-spacing': 'off'
 	}
 };

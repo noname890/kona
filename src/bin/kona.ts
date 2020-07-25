@@ -9,7 +9,7 @@ if (process.argv[2] && process.argv.length < 4) {
 		file = readFileSync(process.argv[2], 'utf8');
 	} catch (e) {
 		console.log('file not found');
-		process.exit(1)
+		process.exit(1);
 	}
 
 	run(file, process.argv[2]);
