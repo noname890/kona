@@ -54,6 +54,8 @@ class LexScanner {
 			case ')':
 				this.addToken(TokenType.RIGHT_PAREN);
 				break;
+			// greek question mark
+			case ';':
 			case ';':
 				if (this.tokens.length !== 0) {
 					this.tokens[this.tokens.length - 1].type !== TokenType.EOL &&

@@ -9,6 +9,8 @@ import * as Stmt from '../statements/stmt';
 import { LogicalExpr } from '../expressions/types/Logical';
 import { Keywords } from '../lexer/Keywords';
 
+const GREEK_QUESTION_MARK = ';';
+
 class Parser {
 	private current: number = 0;
 
@@ -384,6 +386,18 @@ class Parser {
 	}
 
 	private expectEndStatement(): void {
+		if (this.currentToken().lexeme === GREEK_QUESTION_MARK) {
+			throws(new SyntaxError("Expected ';', end of line or end of file after statement."), this.fileName, {
+				line: this.currentToken().line,
+				column: (this.currentToken().column || 1) - this.currentToken().lexeme.length,
+				endColumn: this.currentToken().column || 1,
+				hint:
+					'You may have typed in a greek question mark, rather than a semi-colon.' +
+					"\nThey both look the same, but have a different unicode 'id'.",
+				exit: true
+			});
+		}
+
 		this.consumeMultiple(
 			"Expected ';', end of line or end of file after statement.",
 			TokenType.SEMI_COL,
