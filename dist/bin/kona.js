@@ -19,7 +19,6 @@ function run(source, fileName) {
     // lex the file contents
     var lexed = new LexScanner_1.LexScanner(source, fileName).scan();
     var parsed = new Parser_1.Parser(lexed, fileName).parse();
-    console.log(parsed);
     var interpreter = new interpreter_1.Interpreter(fileName);
     if (parsed) {
         interpreter.interpret(parsed);
