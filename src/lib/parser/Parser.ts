@@ -71,7 +71,6 @@ class Parser {
 	private assignment(): Expression {
 		const token = this.currentToken();
 		const expression = this.or();
-		const column = (token.column || 1) - token.lexeme.length;
 
 		if (this.match(TokenType.EQ)) {
 			// const equals = this.previous();
@@ -83,7 +82,7 @@ class Parser {
 
 			throws(new SyntaxError("Tried to assign to '" + token.lexeme + "'. Expected variable."), this.fileName, {
 				line: this.currentToken().line,
-				column,
+				column: (token.column || 1) - token.lexeme.length,
 				endColumn: token.column || 1,
 				exit: true
 			});
