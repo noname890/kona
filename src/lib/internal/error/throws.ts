@@ -5,6 +5,10 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { normalize } from 'path';
 
+function clamp(number: number, min: number, max: number): number {
+	return Math.min(max, Math.min(Number(number), min));
+}
+
 // // TypeScript translates the chalk import to __importStar(require('chalk'))
 // // and not to require('chalk'), that returns a module object with a property
 // // named default
@@ -54,11 +58,10 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const formattedFile = file
 		.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 3 > file.length ? file.length : info.line + 3)
 		.map((val, index) => {
-			const lineNumber = index + (info.line - 3 < 0 ? 1 : info.line - 3);
+			const lineNumber = index + (info.line - 3 < 0 ? 1 : info.line - 3) + 1;
 
 			// info.column -= shortestWhitespaceAmount;
 			// info.endColumn -= shortestWhitespaceAmount;
-
 			if (lineNumber === info.line) {
 				const errorHighlight =
 					val.substring(0, info.column - 1) +
