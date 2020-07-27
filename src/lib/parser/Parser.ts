@@ -9,6 +9,8 @@ import * as Stmt from '../statements/stmt';
 import { LogicalExpr } from '../expressions/types/Logical';
 import { Keywords } from '../lexer/Keywords';
 
+const GREEK_QUESTION_MARK = ';';
+
 class Parser {
 	private current: number = 0;
 
@@ -52,6 +54,9 @@ class Parser {
 		if (this.match(TokenType.WHILE)) {
 			return this.whileStatement();
 		}
+		if (this.match(TokenType.FOR)) {
+			return this.forStatement();
+		}
 		if (this.match(TokenType.PRAGMA)) {
 			return this.pragmaStatement();
 		}
@@ -66,7 +71,6 @@ class Parser {
 	private assignment(): Expression {
 		const token = this.currentToken();
 		const expression = this.or();
-		const column = (token.column || 1) - token.lexeme.length;
 
 		if (this.match(TokenType.EQ)) {
 			// const equals = this.previous();
@@ -78,7 +82,7 @@ class Parser {
 
 			throws(new SyntaxError("Tried to assign to '" + token.lexeme + "'. Expected variable."), this.fileName, {
 				line: this.currentToken().line,
-				column,
+				column: (token.column || 1) - token.lexeme.length,
 				endColumn: token.column || 1,
 				exit: true
 			});
@@ -210,9 +214,9 @@ class Parser {
 		}
 
 		throws(new SyntaxError("Expected expression, got '" + this.currentToken().lexeme + "'"), this.fileName, {
-			line: this.previous().line,
-			column: (this.previous().column || 1) - this.previous().lexeme.length,
-			endColumn: this.previous().column || 1,
+			line: this.currentToken().line,
+			column: (this.currentToken().column || 1) - this.currentToken().lexeme.length,
+			endColumn: this.currentToken().column || 1,
 			exit: true
 		});
 
@@ -286,6 +290,51 @@ class Parser {
 		const body = this.statement();
 
 		return new Stmt.WhileStmt(condition, body);
+	}
+
+	private forStatement(): Statement {
+		let initializer: Statement | undefined;
+		let condition: Expression;
+		let increment: Expression;
+		let body: Statement;
+
+		this.consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
+
+		if (this.match(TokenType.SEMI_COL)) {
+			initializer = undefined;
+		} else if (this.match(TokenType.VAL)) {
+			initializer = this.varDeclaration();
+		} else {
+			initializer = this.expressionStatement();
+		}
+
+		if (!this.check(TokenType.SEMI_COL)) {
+			condition = this.expression();
+		}
+		this.consume(TokenType.SEMI_COL, "Expected ';' after for loop condition.");
+
+		if (!this.check(TokenType.RIGHT_PAREN)) {
+			increment = this.expression();
+		}
+		this.consume(TokenType.RIGHT_PAREN, "Expected ')' after for loop clause.");
+
+		body = this.statement();
+
+		// @ts-ignore
+		if (increment) {
+			body = new Stmt.BlockStmt([ body, new Stmt.ExpressionStmt(increment) ]);
+		}
+		// @ts-ignore
+		if (!condition) {
+			condition = new Literal(true);
+		}
+		body = new Stmt.WhileStmt(condition, body);
+
+		if (initializer) {
+			body = new Stmt.BlockStmt([ initializer, body ]);
+		}
+
+		return body;
 	}
 
 	private pragmaStatement(): Statement {
@@ -384,6 +433,18 @@ class Parser {
 	}
 
 	private expectEndStatement(): void {
+		if (this.currentToken().lexeme === GREEK_QUESTION_MARK) {
+			throws(new SyntaxError("Expected ';', end of line or end of file after statement."), this.fileName, {
+				line: this.currentToken().line,
+				column: (this.currentToken().column || 1) - this.currentToken().lexeme.length,
+				endColumn: this.currentToken().column || 1,
+				hint:
+					'You may have typed in a greek question mark, rather than a semi-colon.' +
+					"\nThey both look the same, but have a different unicode 'id'.",
+				exit: true
+			});
+		}
+
 		this.consumeMultiple(
 			"Expected ';', end of line or end of file after statement.",
 			TokenType.SEMI_COL,
