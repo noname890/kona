@@ -58,7 +58,7 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const formattedFile = file
 		.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3)
 		.map((val, index) => {
-			const lineNumber = clamp(index + (info.line - 3), 1);
+			const lineNumber = index + clamp(info.line - 3, 1);
 
 			// info.column -= shortestWhitespaceAmount;
 			// info.endColumn -= shortestWhitespaceAmount;
