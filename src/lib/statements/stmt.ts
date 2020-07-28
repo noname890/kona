@@ -5,3 +5,5 @@ export * from './types/BlockStmt';
 export * from './types/IfStmt';
 export * from './types/WhileStmt';
 export * from './types/PragmaStmt';
+export * from './types/BreakStmt';
+export * from './types/ContinueStmt';

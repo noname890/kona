@@ -5,8 +5,8 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { normalize } from 'path';
 
-function clamp(number: number, min: number, max: number): number {
-	return Math.min(max, Math.min(Number(number), min));
+function clamp(number: number, min: number): number {
+	return number < min ? min : number;
 }
 
 // // TypeScript translates the chalk import to __importStar(require('chalk'))
@@ -53,12 +53,12 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 
 	// because slice gives back a shill copy i have to clone it like this, otherwise it gets sorted
 	const shortestWhitespaceAmount = findShortestWhitespaceAmount([
-		...file.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 3 > file.length ? file.length : info.line + 3)
+		...file.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3)
 	]);
 	const formattedFile = file
-		.slice(info.line - 4 < 0 ? 0 : info.line - 4, info.line + 3 > file.length ? file.length : info.line + 3)
+		.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3)
 		.map((val, index) => {
-			const lineNumber = index + (info.line - 3 < 0 ? 1 : info.line - 3) + 1;
+			const lineNumber = index + clamp(info.line - 3, 1);
 
 			// info.column -= shortestWhitespaceAmount;
 			// info.endColumn -= shortestWhitespaceAmount;
