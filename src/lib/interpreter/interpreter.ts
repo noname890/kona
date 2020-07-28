@@ -11,8 +11,7 @@ import { StmtVisitors } from '../statements/StmtVisitors';
 import * as Stmt from '../statements/stmt';
 import { Statement } from '../statements/Statements';
 import { Environment } from './Environment';
-import { Break } from '../internal/error/errorTypes/runtime/Break';
-import { Continue } from '../internal/error/errorTypes/runtime/Continue';
+import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
 
 class Interpreter implements ExpVisitors, StmtVisitors {
 	private env = new Environment(this.fileName, null);
@@ -25,17 +24,6 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 				this.execute(statements[i]);
 			}
 		} catch (e) {
-			if (e instanceof Break || e instanceof Continue) {
-				// illegal break or continue statement
-				throws(e, this.fileName, {
-					line: e.position.line,
-					column: e.position.column,
-					endColumn: e.position.endColumn,
-					hint: e.hint,
-					exit: true
-				});
-			}
-
 			console.log(
 				chalk.bold.redBright('INTERNAL: ') +
 					chalk.bold.whiteBright(
@@ -87,38 +75,12 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	public visitWhileStmt(statement: Stmt.WhileStmt): void {
 		while (this.isTruthy(this.evaluate(statement.condition))) {
-			try {
-				this.execute(statement.body);
-			} catch (e) {
-				if (e instanceof Break) {
-					break;
-				} else if (e instanceof Continue) {
-					continue;
-				} else {
-					throw e;
-				}
-			}
+			this.execute(statement.body);
 		}
 	}
 
 	public visitPragmaStmt(statement: Stmt.PragmaStatement): void {
 		this.env.definePragma(statement.pragmaTarget.lexeme, statement.pragmaArg.lexeme);
-	}
-
-	public visitBreakStmt(statement: Stmt.BreakStmt): void {
-		throw new Break({
-			line: statement.breakToken.line,
-			column: (statement.breakToken.column || 1) - statement.breakToken.lexeme.length,
-			endColumn: statement.breakToken.column || 1
-		});
-	}
-
-	public visitContinueStmt(statement: Stmt.ContinueStmt): void {
-		throw new Continue({
-			line: statement.continueToken.line,
-			column: (statement.continueToken.column || 1) - statement.continueToken.lexeme.length,
-			endColumn: statement.continueToken.column || 1
-		});
 	}
 
 	public visitLogical(logical: Expr.LogicalExpr): any {

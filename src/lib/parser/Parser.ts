@@ -60,12 +60,6 @@ class Parser {
 		if (this.match(TokenType.PRAGMA)) {
 			return this.pragmaStatement();
 		}
-		if (this.match(TokenType.BREAK)) {
-			return this.breakStatement();
-		}
-		if (this.match(TokenType.CONTINUE)) {
-			return this.continueStatement();
-		}
 
 		return this.expressionStatement();
 	}
@@ -355,18 +349,6 @@ class Parser {
 		this.expectEndStatement();
 
 		return new Stmt.PragmaStatement(pragmaTarget as Token, pragmaArg);
-	}
-
-	private breakStatement(): Statement {
-		const keyword = this.previous();
-		this.expectEndStatement();
-		return new Stmt.BreakStmt(keyword);
-	}
-
-	private continueStatement(): Statement {
-		const keyword = this.previous();
-		this.expectEndStatement();
-		return new Stmt.ContinueStmt(keyword);
 	}
 
 	// ----------STATEMENTS---------- //

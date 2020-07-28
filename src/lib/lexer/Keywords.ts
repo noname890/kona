@@ -16,8 +16,6 @@ const Keywords: any = {
 	else: TokenType.ELSE,
 	for: TokenType.FOR,
 	while: TokenType.WHILE,
-	continue: TokenType.CONTINUE,
-	break: TokenType.BREAK,
 	to: TokenType.TO,
 	// do: TokenType.DO,
 	print: TokenType.PRINT,

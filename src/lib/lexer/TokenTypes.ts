@@ -45,8 +45,6 @@ enum TokenTypes {
 	LOOP = 'LOOP',
 	ASYNC = 'ASYNC',
 	WHILE = 'WHILE',
-	CONTINUE = 'CONTINUE',
-	BREAK = 'BREAK',
 	TO = 'TO',
 	DO = 'DO',
 	NEW = 'NEW',

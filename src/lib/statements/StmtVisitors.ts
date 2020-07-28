@@ -5,8 +5,6 @@ import { BlockStmt } from './types/BlockStmt';
 import { IfStmt } from './types/IfStmt';
 import { WhileStmt } from './types/WhileStmt';
 import { PragmaStatement } from './types/PragmaStmt';
-import { ContinueStmt } from './types/ContinueStmt';
-import { BreakStmt } from './types/BreakStmt';
 
 interface StmtVisitors {
 	visitExprStmt(visitor: ExpressionStmt): any;
@@ -16,8 +14,6 @@ interface StmtVisitors {
 	visitIfStmt(visitor: IfStmt): any;
 	visitWhileStmt(visitor: WhileStmt): any;
 	visitPragmaStmt(visitBlockStmt: PragmaStatement): any;
-	visitBreakStmt(visitBreakStmt: BreakStmt): any;
-	visitContinueStmt(visitContinueStmt: ContinueStmt): any;
 }
 /* eslint no-undef: off */
 export { StmtVisitors };

@@ -36,8 +36,5 @@
 	"dependencies": {
 		"chalk": "^4.0.0",
 		"unescape-js": "^1.1.4"
-	},
-	"bin": {
-		"kona": "./dist/bin/kona.js"
 	}
 }
