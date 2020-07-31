@@ -81,7 +81,7 @@ class LexScanner {
 									endColumn: this.column,
 									exit: true
 								})
-							: TokenType.MULTIPLY
+							: this.match('=') ? TokenType.MULTIPLY_EQ : TokenType.MULTIPLY
 				);
 				break;
 			case '!':
@@ -100,10 +100,12 @@ class LexScanner {
 				);
 				break;
 			case '+':
-				this.addToken(TokenType.PLUS);
+				this.match('=') ? this.addToken(TokenType.PLUS_EQ) : this.addToken(TokenType.PLUS);
 				break;
 			case '-':
-				this.addToken(this.match('>') ? TokenType.ARROW : TokenType.MINUS);
+				this.addToken(
+					this.match('>') ? TokenType.ARROW : this.match('=') ? TokenType.MINUS_EQ : TokenType.MINUS
+				);
 				break;
 			case '<':
 				this.addToken(this.match('=') ? TokenType.LESS_OR_EQ_THAN : TokenType.LESS_THAN);
@@ -123,6 +125,8 @@ class LexScanner {
 					while (this.peek() !== '\n' && !(this.current >= this.source.length)) this.nextChar();
 				} else if (this.match('*')) {
 					this.konaMultiLine();
+				} else if (this.match('=')) {
+					this.addToken(TokenType.DIV_EQ);
 				} else {
 					this.addToken(TokenType.DIV);
 				}

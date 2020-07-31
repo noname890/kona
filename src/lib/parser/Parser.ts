@@ -78,11 +78,44 @@ class Parser {
 		const token = this.currentToken();
 		const expression = this.or();
 
-		if (this.match(TokenType.EQ)) {
-			// const equals = this.previous();
-			const value = this.assignment();
+		if (this.match(TokenType.EQ, TokenType.PLUS_EQ, TokenType.MINUS_EQ, TokenType.MULTIPLY_EQ, TokenType.DIV_EQ)) {
+			const equals = this.previous();
+			let value = this.assignment();
 
 			if (expression instanceof Variable) {
+				// desugars `+=`, `-=`, `*=`, `/=`
+
+				switch (equals.type) {
+					case TokenType.PLUS_EQ:
+						value = new Binary(
+							new Variable(expression.name),
+							new Token(TokenType.PLUS, '+=', null, expression.name.line, expression.name.column),
+							value
+						);
+						break;
+					case TokenType.MINUS_EQ:
+						value = new Binary(
+							new Variable(expression.name),
+							new Token(TokenType.MINUS, '-=', null, expression.name.line, expression.name.column),
+							value
+						);
+						break;
+					case TokenType.MULTIPLY_EQ:
+						value = new Binary(
+							new Variable(expression.name),
+							new Token(TokenType.MULTIPLY, '*=', null, expression.name.line, expression.name.column),
+							value
+						);
+						break;
+					case TokenType.DIV_EQ:
+						value = new Binary(
+							new Variable(expression.name),
+							new Token(TokenType.DIV, '/=', null, expression.name.line, expression.name.column),
+							value
+						);
+						break;
+				}
+
 				return new Assignment(expression.name, value);
 			}
 
