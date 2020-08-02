@@ -1,7 +1,7 @@
 import { Token } from '../lexer/Token';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
-import { Binary, Literal, Unary, Group, Variable, Assignment } from '../expressions/exp';
+import { Binary, Literal, Unary, Group, Variable, Assignment, Call } from '../expressions/exp';
 import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import { Statement } from '../statements/Statements';
@@ -214,7 +214,19 @@ class Parser {
 			const right: Expression = this.unary();
 			return new Unary(operator, right);
 		}
-		return this.primary();
+		return this.call();
+	}
+
+	private call(): Expression {
+		let expr = this.primary();
+
+		while (true) {
+			if (this.match(TokenType.LEFT_PAREN)) {
+				expr = this.finishCall(expr);
+			} else break;
+		}
+
+		return expr;
 	}
 
 	private primary(): Expression {
@@ -450,7 +462,7 @@ class Parser {
 		return this.previous();
 	}
 
-	private consume(type: TokenType, msg: string, hint?: string): Token | undefined {
+	private consume(type: TokenType, msg: string, hint?: string): Token | never {
 		if (this.currentToken().type === type) {
 			return this.advance();
 		}
@@ -463,6 +475,8 @@ class Parser {
 			hint,
 			exit: true
 		});
+
+		throw new Error();
 	}
 
 	private currentToken(): Token {
@@ -481,6 +495,37 @@ class Parser {
 			endColumn: this.currentToken().column || 1,
 			exit: true
 		});
+	}
+
+	private finishCall(callee: Expression): Expression {
+		const leftParen = this.previous();
+		const fnArguments: Expression[] = [];
+		const MAX_ARGS: number = 255;
+
+		if (!this.check(TokenType.RIGHT_PAREN)) {
+			if (fnArguments.length >= MAX_ARGS) {
+				// what are you doing?
+				// TODO: Add hint about using arrays instead 255 args
+				throws(
+					new SyntaxError('Cannot have more than ' + String(MAX_ARGS) + ' arguments in a function.'),
+					this.fileName,
+					{
+						line: this.currentToken().line,
+						column: (leftParen.column || 1) - leftParen.lexeme.length,
+						endColumn: this.currentToken().column || 1,
+						exit: true
+					}
+				);
+			}
+
+			do {
+				fnArguments.push(this.expression());
+			} while (this.match(TokenType.COMMA));
+		}
+
+		const parenthesis = this.consume(TokenType.RIGHT_PAREN, "Expected ')' after argument list.");
+
+		return new Call(callee, parenthesis, fnArguments);
 	}
 
 	private expectEndStatement(): void {
