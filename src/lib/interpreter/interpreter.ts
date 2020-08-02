@@ -17,6 +17,7 @@ import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceEr
 import KonaCallable from './KonaCallable';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import ReadInputImplement from './nativeImplements/readInput';
+import pluralize from '../internal/utils/pluralize';
 
 class Interpreter implements ExpVisitors, StmtVisitors {
 	private globals = new Environment(this.fileName, null);
@@ -238,7 +239,12 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		if (fnArguments.length < fn.arity()) {
 			this.throwError(
 				new SyntaxError(
-					'Expected at least ' + String(fn.arity()) + ' arguments, found ' + String(fnArguments.length) + '.'
+					'Expected at least ' +
+						String(fn.arity()) +
+						pluralize('argument/s', fn.arity()) +
+						' , found ' +
+						String(fnArguments.length) +
+						'.'
 				),
 				expression.calleeToken
 			);
