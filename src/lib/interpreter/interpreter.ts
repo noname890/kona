@@ -252,7 +252,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			);
 		}
 
-		return fn.callFn(this, fnArguments);
+		return fn.callFn(this, fnArguments, expression.calleeToken);
 	}
 
 	public visitAssignment(expression: Expr.Assignment): any {
