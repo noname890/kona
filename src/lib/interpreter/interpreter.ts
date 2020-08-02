@@ -243,8 +243,8 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 				new SyntaxError(
 					'Expected at least ' +
 						String(fn.arity()) +
-						pluralize('argument/s', fn.arity()) +
-						' , found ' +
+						pluralize(' argument/s', fn.arity()) +
+						', found ' +
 						String(fnArguments.length) +
 						'.'
 				),
