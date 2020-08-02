@@ -3,7 +3,12 @@ import { Token } from '../../lexer/Token';
 import { ExpVisitors } from '../ExpVisitors';
 
 class Call extends Expression {
-	constructor(public callee: Expression, public parenthesis: Token, public args: Expression[]) {
+	constructor(
+		public callee: Expression,
+		public parenthesis: Token,
+		public args: Expression[],
+		public calleeToken: Token
+	) {
 		super();
 	}
 

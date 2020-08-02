@@ -499,6 +499,7 @@ class Parser {
 
 	private finishCall(callee: Expression): Expression {
 		const leftParen = this.previous();
+		const calleeToken = this.peek(-2);
 		const fnArguments: Expression[] = [];
 		const MAX_ARGS: number = 255;
 
@@ -525,7 +526,7 @@ class Parser {
 
 		const parenthesis = this.consume(TokenType.RIGHT_PAREN, "Expected ')' after argument list.");
 
-		return new Call(callee, parenthesis, fnArguments);
+		return new Call(callee, leftParen, fnArguments, calleeToken);
 	}
 
 	private expectEndStatement(): void {

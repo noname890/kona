@@ -13,11 +13,18 @@ import { Statement } from '../statements/Statements';
 import { Environment } from './Environment';
 import { Break } from '../internal/error/errorTypes/runtime/Break';
 import { Continue } from '../internal/error/errorTypes/runtime/Continue';
+import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
+import KonaCallable from './KonaCallable';
+import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
+import ReadInputImplement from './nativeImplements/readInput';
 
 class Interpreter implements ExpVisitors, StmtVisitors {
-	private env = new Environment(this.fileName, null);
+	private globals = new Environment(this.fileName, null);
+	private env = this.globals;
 
-	constructor(public readonly fileName: string) {}
+	constructor(public readonly fileName: string) {
+		this.globals.define('read_input', new ReadInputImplement());
+	}
 
 	public interpret(statements: Statement[]) {
 		try {
@@ -215,7 +222,30 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		}
 	}
 
-	public visitCall(): any {}
+	public visitCall(expression: Expr.Call): any {
+		if (!(expression.callee instanceof Expr.Variable)) {
+			this.throwError(new ReferenceError('Can only call functions.'), expression.calleeToken);
+		}
+
+		const callee = this.evaluate(expression.callee);
+		const fnArguments: any[] = [];
+		const fn = (callee as unknown) as KonaCallable;
+
+		for (const arg of expression.args) {
+			fnArguments.push(this.evaluate(arg));
+		}
+
+		if (fnArguments.length < fn.arity()) {
+			this.throwError(
+				new SyntaxError(
+					'Expected at least ' + String(fn.arity()) + ' arguments, found ' + String(fnArguments.length) + '.'
+				),
+				expression.calleeToken
+			);
+		}
+
+		return fn.callFn(this, fnArguments);
+	}
 
 	public visitAssignment(expression: Expr.Assignment): any {
 		const value = this.evaluate(expression.value);
@@ -307,8 +337,8 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	private throwError(Error: KonaError, token: Token, hint?: string): void {
 		throws(Error, this.fileName, {
 			line: token.line,
-			column: token.column ? token.column : 0,
-			endColumn: (token.column || 0) + token.lexeme.length,
+			column: (token.column || 0) - token.lexeme.length,
+			endColumn: token.column || 0,
 			hint,
 			exit: true
 		});
