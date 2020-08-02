@@ -18,6 +18,7 @@ import KonaCallable from './KonaCallable';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import ReadInputImplement from './nativeImplements/readInput';
 import pluralize from '../internal/utils/pluralize';
+import FormatImplement from './nativeImplements/format';
 
 class Interpreter implements ExpVisitors, StmtVisitors {
 	private globals = new Environment(this.fileName, null);
@@ -25,6 +26,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	constructor(public readonly fileName: string) {
 		this.globals.define('read_input', new ReadInputImplement());
+		this.globals.define('format', new FormatImplement());
 	}
 
 	public interpret(statements: Statement[]) {
