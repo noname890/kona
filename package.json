@@ -35,6 +35,7 @@
 	},
 	"dependencies": {
 		"chalk": "^4.0.0",
+		"readline-sync": "^1.4.10",
 		"unescape-js": "^1.1.4"
 	},
 	"bin": {
