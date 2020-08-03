@@ -531,7 +531,7 @@ class Parser {
 
 	private expectEndStatement(): void {
 		if (this.currentToken().lexeme === GREEK_QUESTION_MARK) {
-			throws(new SyntaxError("Expected ';', end of line or end of file after statement."), this.fileName, {
+			throws(new SyntaxError("Expected ';' after statement."), this.fileName, {
 				line: this.currentToken().line,
 				column: (this.currentToken().column || 1) - this.currentToken().lexeme.length,
 				endColumn: this.currentToken().column || 1,
@@ -542,12 +542,7 @@ class Parser {
 			});
 		}
 
-		this.consumeMultiple(
-			"Expected ';', end of line or end of file after statement.",
-			TokenType.SEMI_COL,
-			TokenType.EOL,
-			TokenType.EOF
-		);
+		this.consumeMultiple("Expected ';' after statement.", TokenType.SEMI_COL);
 	}
 
 	// ----------HELPERS---------- //
