@@ -140,9 +140,9 @@ class LexScanner {
 				// ignore whitespace
 				break;
 			case '\n':
-				if (this.tokens.length !== 0) {
-					this.isExcludedFromEOL() ? this.addToken(TokenType.EOL) : '';
-				}
+				// if (this.tokens.length !== 0) {
+				// 	this.isExcludedFromEOL() ? this.addToken(TokenType.EOL) : '';
+				// }
 				this.line++;
 				this.column = 1;
 				break;
