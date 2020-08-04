@@ -41,8 +41,8 @@ function calculateLinePadding(array: string[], info: ErrorInfo) {
 function findShortestWhitespaceAmount(array: string[]): number {
 	const sorted = array.sort((a, b) => a.length - b.length);
 
-	if (sorted[0]) {
-		while (sorted[0].trim() === '') {
+	if (sorted[0] !== undefined) {
+		while (!sorted[0].trim()) {
 			sorted.shift();
 		}
 
