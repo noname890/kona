@@ -5,8 +5,31 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { normalize } from 'path';
 
+const INDENTATION = 4;
+const NEW_LINE_REGEX = /\r?\n/g;
+
+interface ErrorInfo {
+	line: number;
+	column: number;
+	endColumn: number;
+	hint?: string;
+	exit?: true | false;
+}
+
 function clamp(number: number, min: number): number {
 	return number < min ? min : number;
+}
+
+function calculateLineNumber(reference: number, info: ErrorInfo) {
+	return reference + clamp(info.line - 3, 1);
+}
+function calculateLinePadding(array: string[], info: ErrorInfo) {
+	const lineNumbersLengths: number[] = [];
+
+	array.forEach((_, index) => {
+		lineNumbersLengths.push(String(calculateLineNumber(index, info)).length);
+	});
+	return Math.max(...lineNumbersLengths);
 }
 
 // // TypeScript translates the chalk import to __importStar(require('chalk'))
@@ -33,31 +56,7 @@ function findShortestWhitespaceAmount(array: string[]): number {
 	return 0;
 }
 
-interface ErrorInfo {
-	line: number;
-	column: number;
-	endColumn: number;
-	hint?: string;
-	exit?: true | false;
-}
-
-function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
-	let lineNumberPadding: number;
-	const INDENTATION = 4;
-	const NEW_LINE_REGEX = /\r?\n/g;
-	const ERROR_ORIGIN = `${chalk.italic.grey(
-		normalize(filename) + ' at ' + String(info.line) + ':' + String(info.column)
-	)}`;
-	const calculateLineNumber = (reference: number) => reference + clamp(info.line - 3, 1);
-	const calculateLinePadding = (array: string[]) => {
-		const lineNumbersLengths: number[] = [];
-
-		array.forEach((_, index) => {
-			lineNumbersLengths.push(String(calculateLineNumber(index)).length);
-		});
-		return Math.max(...lineNumbersLengths);
-	};
-
+function generateFormattedFile(filename: string, info: ErrorInfo) {
 	// grabs the file, splits by newline, and grabs 8 lines
 	const file = readFileSync(filename, 'utf8').split(NEW_LINE_REGEX);
 
@@ -68,8 +67,8 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const slicedFile = file.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3);
 	const formattedFile = slicedFile
 		.map((val, index) => {
-			const lineNumber = calculateLineNumber(index);
-			const lineNumberPadding = calculateLinePadding(slicedFile) - String(lineNumber).length;
+			const lineNumber = calculateLineNumber(index, info);
+			const lineNumberPadding = calculateLinePadding(slicedFile, info) - String(lineNumber).length;
 
 			// info.column -= shortestWhitespaceAmount;
 			// info.endColumn -= shortestWhitespaceAmount;
@@ -94,6 +93,15 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 			);
 		})
 		.join('\n  ');
+
+	return formattedFile;
+}
+
+function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
+	const ERROR_ORIGIN = `${chalk.italic.grey(
+		normalize(filename) + ' at ' + String(info.line) + ':' + String(info.column)
+	)}`;
+	const formattedFile = generateFormattedFile(filename, info);
 
 	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${ERROR_ORIGIN}	
   ${chalk.bold.redBright(konaerror.errorType)}: ${chalk.bold.whiteBright(
