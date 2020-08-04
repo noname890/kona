@@ -50,6 +50,10 @@ class Environment {
 	}
 
 	public define(name: string, value: any): void {
+		if (name === '_' && !this.getPragma('allow_underscore_for_var_names')) {
+			return;
+		}
+
 		this.vars[name] = value;
 	}
 
