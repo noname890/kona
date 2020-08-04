@@ -42,11 +42,21 @@ interface ErrorInfo {
 }
 
 function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
+	let lineNumberPadding: number;
 	const INDENTATION = 4;
 	const NEW_LINE_REGEX = /\r?\n/g;
 	const ERROR_ORIGIN = `${chalk.italic.grey(
 		normalize(filename) + ' at ' + String(info.line) + ':' + String(info.column)
 	)}`;
+	const calculateLineNumber = (reference: number) => reference + clamp(info.line - 3, 1);
+	const calculateLinePadding = (array: string[]) => {
+		const lineNumbersLengths: number[] = [];
+
+		array.forEach((_, index) => {
+			lineNumbersLengths.push(String(calculateLineNumber(index)).length);
+		});
+		return Math.max(...lineNumbersLengths);
+	};
 
 	// grabs the file, splits by newline, and grabs 8 lines
 	const file = readFileSync(filename, 'utf8').split(NEW_LINE_REGEX);
@@ -55,10 +65,11 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const shortestWhitespaceAmount = findShortestWhitespaceAmount([
 		...file.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3)
 	]);
-	const formattedFile = file
-		.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3)
+	const slicedFile = file.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3);
+	const formattedFile = slicedFile
 		.map((val, index) => {
-			const lineNumber = index + clamp(info.line - 3, 1);
+			const lineNumber = calculateLineNumber(index);
+			const lineNumberPadding = calculateLinePadding(slicedFile) - String(lineNumber).length;
 
 			// info.column -= shortestWhitespaceAmount;
 			// info.endColumn -= shortestWhitespaceAmount;
@@ -68,7 +79,7 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 					chalk.bold.redBright(val.substring(info.column - 1, info.endColumn - 1)) +
 					val.substring(info.endColumn - 1);
 				return (
-					' '.repeat(String(info.line).length - String(lineNumber).length) +
+					' '.repeat(lineNumberPadding) +
 					chalk.bold.redBright(lineNumber) +
 					' │ ' +
 					chalk.bold.whiteBright(errorHighlight.substring(shortestWhitespaceAmount))
@@ -76,7 +87,7 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 			}
 
 			return (
-				' '.repeat(String(info.line).length - String(lineNumber).length) +
+				' '.repeat(lineNumberPadding) +
 				chalk.bold.grey(lineNumber) +
 				' │ ' +
 				chalk.bold.whiteBright(val.substring(shortestWhitespaceAmount))
