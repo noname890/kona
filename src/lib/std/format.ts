@@ -10,7 +10,7 @@ export default function format(text: string, ...stringsToInterpolate: string[]):
 				"The number of strings should be at least\nthe same number of interpolators ('{}')."
 			);
 		}
-		result = result.replace('{}', stringsToInterpolate[0]);
+		result = result.replace('{}', stringsToInterpolate[0] === undefined ? 'nil' : stringsToInterpolate[0]);
 		stringsToInterpolate.shift();
 	}
 
