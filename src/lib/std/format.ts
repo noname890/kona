@@ -4,7 +4,7 @@ export default function format(text: string, ...stringsToInterpolate: string[]):
 	let result: string = text;
 
 	while (result.includes('{}')) {
-		if (!stringsToInterpolate[0]) {
+		if (!stringsToInterpolate.hasOwnProperty(0)) {
 			throw new SyntaxError(
 				'Not enough strings to interpolate.',
 				"The number of strings should be at least\nthe same number of interpolators ('{}')."
