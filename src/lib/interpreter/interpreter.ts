@@ -17,6 +17,7 @@ import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceEr
 import KonaCallable from './KonaCallable';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import ReadInputImplement from './nativeImplements/readInput';
+import ReadInputSilentImplement from './nativeImplements/readInputSilent';
 import pluralize from '../internal/utils/pluralize';
 import FormatImplement from './nativeImplements/format';
 
@@ -26,6 +27,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	constructor(public readonly fileName: string) {
 		this.globals.define('read_input', new ReadInputImplement());
+		this.globals.define('read_input_silent', new ReadInputSilentImplement());
 		this.globals.define('format', new FormatImplement());
 	}
 
