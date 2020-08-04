@@ -3,6 +3,10 @@ import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 export default function format(text: string, ...stringsToInterpolate: string[]): string {
 	let result: string = text;
 
+	if (text === undefined) {
+		return 'nil';
+	}
+
 	while (result.includes('{}')) {
 		if (!stringsToInterpolate.hasOwnProperty(0)) {
 			throw new SyntaxError(
