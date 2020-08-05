@@ -5,6 +5,10 @@ import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceEr
 class Environment {
 	private vars: any = {};
 	private pragmas: any = {};
+	private constants: string[] = [];
+	// this contains variables that have been casted in constants
+	// and their locations
+	private casts: string[] = [];
 
 	constructor(private fileName: string, public enclosing: Environment | null) {}
 
@@ -49,10 +53,23 @@ class Environment {
 		});
 	}
 
+	public defineConst(name: string, value: any): void {
+		if (name === '_' && !this.getPragma('allow_underscore_for_var_names')) {
+			return;
+		}
+		if (this.vars.hasOwnProperty(name)) {
+			this.casts.push(name);
+		}
+		this.define(name, value);
+		this.constants.push(name);
+	}
+
 	public define(name: string, value: any): void {
 		if (name === '_' && !this.getPragma('allow_underscore_for_var_names')) {
 			return;
 		}
+
+		if (this.isConst(name)) return;
 
 		this.vars[name] = value;
 	}
@@ -62,6 +79,18 @@ class Environment {
 	}
 
 	public assign(name: Token, value: any): null {
+		if (this.isConst(name.lexeme)) {
+			throws(new ReferenceError('Illegal assignment to constant variable.'), this.fileName, {
+				line: name.line,
+				column: (name.column || 1) - name.lexeme.length,
+				endColumn: name.column || 1,
+				hint: this.isCast(name.lexeme)
+					? `'${name.lexeme}' was casted into a constant,\nand cannot be modified.`
+					: undefined,
+				exit: true
+			});
+		}
+
 		if (this.vars.hasOwnProperty(name.lexeme)) {
 			this.vars[name.lexeme] = value;
 			return null;
@@ -94,6 +123,24 @@ class Environment {
 			exit: true
 		});
 		return null;
+	}
+
+	private isCast(name: string): boolean {
+		if (this.casts.includes(name)) {
+			return true;
+		} else if (this.enclosing) {
+			return this.enclosing.isCast(name);
+		}
+		return false;
+	}
+
+	private isConst(name: string): boolean {
+		if (this.constants.includes(name)) {
+			return true;
+		} else if (this.enclosing) {
+			return this.enclosing.isConst(name);
+		}
+		return false;
 	}
 }
 
