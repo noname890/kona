@@ -7,3 +7,4 @@ export * from './types/WhileStmt';
 export * from './types/PragmaStmt';
 export * from './types/BreakStmt';
 export * from './types/ContinueStmt';
+export * from './types/ConstStmt';
