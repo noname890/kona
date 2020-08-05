@@ -29,6 +29,11 @@ class Parser {
 	// ----------RULES---------- //
 
 	private declaration(): Statement {
+		if (this.match(TokenType.CONST)) {
+			const constDeclare = this.constDeclaration();
+			return constDeclare;
+		}
+
 		if (this.match(TokenType.VAL)) {
 			const varDeclare = this.varDeclaration();
 
@@ -281,7 +286,7 @@ class Parser {
 
 	private varDeclaration(): Statement | undefined {
 		const HINT = 'You cannot use expressions (e.g. 2 + 2) or keywords (e.g. while) as valid variable names.';
-		const name: Token | undefined = this.consume(
+		const name: Token = this.consume(
 			TokenType.IDENTIFIER,
 			"Expected identifier, got '" + this.currentToken().lexeme.replace(/'/g, '') + "'.",
 			this.currentToken().type === TokenType.NUMBER || this.currentToken().lexeme in Keywords
@@ -298,9 +303,36 @@ class Parser {
 		}
 
 		this.expectEndStatement();
-		if (name) {
-			return new Stmt.VariableStmt(name, initializer);
+
+		return new Stmt.VariableStmt(name, initializer);
+	}
+
+	private constDeclaration(): Statement {
+		const HINT = 'You cannot use expressions (e.g. 2 + 2) or keywords (e.g. while) as valid variable names.';
+		const name: Token = this.consume(
+			TokenType.IDENTIFIER,
+			"Expected identifier, got '" + this.currentToken().lexeme.replace(/'/g, '') + "'.",
+			this.currentToken().type === TokenType.NUMBER || this.currentToken().lexeme in Keywords
+				? HINT +
+					"\nYou can solve this by using '_" +
+					this.currentToken().lexeme +
+					"' as a variable name,\nor choose another non-conflicting name.\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords."
+				: HINT + '\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords.'
+		);
+		if (!this.match(TokenType.EQ)) {
+			throws(new SyntaxError('Cannot create constant variable without an\ninitializer.'), this.fileName, {
+				line: this.previous().line,
+				column: (this.previous().column || 1) - this.previous().lexeme.length,
+				endColumn: this.previous().column || 1,
+				exit: true
+			});
 		}
+
+		const initializer = this.expression();
+
+		this.expectEndStatement();
+
+		return new Stmt.ConstStmt(name, initializer);
 	}
 
 	private printStatement(): Statement {
