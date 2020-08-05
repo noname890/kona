@@ -81,6 +81,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		this.env.define(statement.name.lexeme, value);
 	}
 
+	public visitConstStmt(statement: Stmt.ConstStmt): void {
+		this.env.defineConst(statement.name.lexeme, this.evaluate(statement.initializer));
+	}
+
 	public visitBlockStmt(statement: Stmt.BlockStmt): void {
 		this.executeBlock(statement.statements, new Environment(this.fileName, this.env));
 	}
