@@ -7,11 +7,13 @@ import { WhileStmt } from './types/WhileStmt';
 import { PragmaStatement } from './types/PragmaStmt';
 import { ContinueStmt } from './types/ContinueStmt';
 import { BreakStmt } from './types/BreakStmt';
+import { ConstStmt } from './types/ConstStmt';
 
 interface StmtVisitors {
 	visitExprStmt(visitor: ExpressionStmt): any;
 	visitPrintStmt(visitor: PrintStmt): any;
 	visitVariableStmt(visitor: VariableStmt): any;
+	visitConstStmt(visitor: ConstStmt): any;
 	visitBlockStmt(visitor: BlockStmt): any;
 	visitIfStmt(visitor: IfStmt): any;
 	visitWhileStmt(visitor: WhileStmt): any;
