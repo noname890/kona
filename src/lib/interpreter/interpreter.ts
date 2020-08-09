@@ -20,10 +20,12 @@ import ReadInputImplement from './nativeImplements/readInput';
 import ReadInputSilentImplement from './nativeImplements/readInputSilent';
 import pluralize from '../internal/utils/pluralize';
 import FormatImplement from './nativeImplements/format';
+import Stack from './Stack';
 
 class Interpreter implements ExpVisitors, StmtVisitors {
 	private globals = new Environment(this.fileName, null);
 	private env = this.globals;
+	public stack = new Stack();
 
 	constructor(public readonly fileName: string) {
 		this.globals.define('read_input', new ReadInputImplement());
@@ -254,7 +256,13 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			);
 		}
 
-		return fn.callFn(this, fnArguments, expression.calleeToken);
+		this.stack.addFunctionCall(expression.calleeToken.lexeme, expression.calleeToken);
+
+		const callResult = fn.callFn(this, fnArguments, expression.calleeToken);
+
+		this.stack.removeFunctionCall();
+
+		return callResult;
 	}
 
 	public visitAssignment(expression: Expr.Assignment): any {
@@ -350,6 +358,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			column: (token.column || 0) - token.lexeme.length,
 			endColumn: token.column || 0,
 			hint,
+			stack: this.stack,
 			exit: true
 		});
 	}

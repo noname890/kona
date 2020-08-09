@@ -4,6 +4,7 @@ import { KonaError } from './errorTypes/InternalKonaError';
 import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { normalize } from 'path';
+import Stack from '../../interpreter/Stack';
 
 const INDENTATION = 4;
 const NEW_LINE_REGEX = /\r?\n/g;
@@ -13,11 +14,25 @@ interface ErrorInfo {
 	column: number;
 	endColumn: number;
 	hint?: string;
+	stack?: Stack;
 	exit?: true | false;
 }
 
 function clamp(number: number, min: number): number {
 	return number < min ? min : number;
+}
+
+function formatStackTrace(stack: any[], indent: number = 0): string[] {
+	const result: string[] = [];
+
+	if (stack.length === 0) return result;
+
+	for (const i in stack) {
+		result.push(' '.repeat(indent * 2) + stack[i][0]);
+		result.push(...formatStackTrace(stack[i][1], indent + 1));
+	}
+
+	return result;
 }
 
 function calculateLineNumber(reference: number, info: ErrorInfo) {
@@ -101,6 +116,8 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	const ERROR_ORIGIN = `${chalk.italic.grey(
 		normalize(filename) + ' at ' + String(info.line) + ':' + String(info.column)
 	)}`;
+	const STACK_EMPTY = chalk.italic.grey('empty');
+
 	const formattedFile = generateFormattedFile(filename, info);
 
 	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${ERROR_ORIGIN}	
@@ -110,6 +127,14 @@ function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
 	)}
   
   ${formattedFile}
+
+  ${chalk.bold.cyan('Stacktrace:')} ${info.stack
+		? info.stack.getStacktrace().length !== 0
+			? formatStackTrace(info.stack.unwrap(info.stack.getStacktrace())).join(
+					'\n' + ' '.repeat('Stacktrace'.length + INDENTATION)
+				)
+			: STACK_EMPTY
+		: STACK_EMPTY}
   ${info.hint
 		? '\n' +
 			' '.repeat(INDENTATION / 2) +
