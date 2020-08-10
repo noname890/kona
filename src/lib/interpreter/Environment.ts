@@ -57,7 +57,7 @@ class Environment {
 		if (name === '_' && !this.getPragma('allow_underscore_for_var_names')) {
 			return;
 		}
-		if (this.vars.hasOwnProperty(name)) {
+		if (this.exists(name)) {
 			this.casts.push(name);
 		}
 		this.define(name, value);
@@ -123,6 +123,12 @@ class Environment {
 			exit: true
 		});
 		return null;
+	}
+
+	private exists(name: string): boolean {
+		if (this.vars.hasOwnProperty(name)) return true;
+		if (this.enclosing) return this.enclosing.exists(name);
+		return false;
 	}
 
 	private isCast(name: string): boolean {
