@@ -1,9 +1,6 @@
 import { Token } from '../lexer/Token';
 
-const MAX_FUNCTIONS = 65536;
 const MAX_STACKTRACE_LENGTH = 10;
-
-let functionCount = 0;
 
 // class StackInfo {
 //     private stack = {}
@@ -45,18 +42,20 @@ let functionCount = 0;
 
 class FixedArray<T> {
 	private array: T[] = [];
+	public length = 0;
 
 	constructor(private maxLength: number) {}
 
 	public push(...items: T[]): void {
 		this.array.push(...items);
-
+		this.length += items.length;
 		if (this.array.length > this.maxLength) {
 			this.array.shift();
 		}
 	}
 
 	public pop(): T | undefined {
+		this.length--;
 		return this.array.pop();
 	}
 
@@ -80,16 +79,35 @@ export default class Stack {
 	// - third index: function children
 	// all fixed to a default "depth" of 10
 	private stacktrace: FixedArray<[string, Token, Stack]> = new FixedArray(MAX_STACKTRACE_LENGTH);
+	public executingFunction = false;
+
+	private removeExecution() {
+		const latest = this.stacktrace.get(this.stacktrace.length - 1);
+		if (latest) {
+			if (latest[2].executingFunction) {
+				latest[2].removeExecution();
+				return;
+			}
+		}
+		this.executingFunction = false;
+	}
 
 	public addFunctionCall(name: string, token: Token) {
-		this.stacktrace.push([ name, token, new Stack() ]);
-		functionCount++;
-		if (functionCount >= MAX_FUNCTIONS) {
+		if (this.executingFunction) {
+			const latest = this.stacktrace.get(this.stacktrace.length - 1);
+
+			if (latest) {
+				latest[2].addFunctionCall(name, token);
+			}
+			return;
 		}
+		this.stacktrace.push([ name, token, new Stack() ]);
+
+		this.executingFunction = true;
 	}
 
 	public removeFunctionCall() {
-		functionCount--;
+		this.removeExecution();
 	}
 
 	public unwrap(stack: [string, Token, Stack][]): any {
