@@ -20,6 +20,7 @@ export default class FormatImplement implements KonaCallable {
 					column: (fnName.column || 1) - fnName.lexeme.length,
 					endColumn: fnName.column || 1,
 					hint: e.hint,
+					stack: interpreter.stack,
 					exit: true
 				});
 			} else {
