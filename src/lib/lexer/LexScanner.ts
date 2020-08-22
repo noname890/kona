@@ -4,7 +4,7 @@ import Token from './Token';
 import { TokenType } from './TokenTypes';
 import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
-import { Keywords } from './Keywords';
+import Keywords from './Keywords';
 
 export default class LexScanner {
 	public tokens: Token[] = [];
