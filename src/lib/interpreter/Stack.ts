@@ -2,44 +2,6 @@ import { Token } from '../lexer/Token';
 
 const MAX_STACKTRACE_LENGTH = 10;
 
-// class StackInfo {
-//     private stack = {}
-
-//     public newFunction(name: string, token: Token) {
-//         this.stack[name]
-//     }
-// }
-
-// export default class Stack {
-// 	private stackTrace: any = {};
-// 	private functionCount = 0;
-// 	private currentFunctionScope: Stack[] = [];
-
-// 	private addCount() {
-// 		this.functionCount++;
-// 		if (this.functionCount >= MAX_FUNCTIONS) {
-// 			// we throw
-// 		}
-// 	}
-
-// 	public removeFunctionCall() {
-// 		this.functionCount--;
-// 		return this.currentFunctionScope.pop();
-// 	}
-
-// 	public getStacktrace() {
-// 		return this.stackTrace;
-// 	}
-
-// 	public addFunctionCall(name: string, token: Token) {
-// 		this.stackTrace[name] = this.stackTrace[name] || [];
-// 		this.stackTrace[name].push(token);
-// 		this.stackTrace[name].push(new Stack());
-// 		this.currentFunctionScope.push(this.stackTrace[name][this.stackTrace[name].length - 1]);
-// 		this.addCount();
-// 	}
-// }
-
 class FixedArray<T> {
 	private array: T[] = [];
 	public length = 0;
