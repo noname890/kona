@@ -3,6 +3,9 @@ import FixedArray from '../internal/utils/FixedArray';
 
 const MAX_STACKTRACE_LENGTH = 10;
 
+/**
+ * Class that stores the function stack info
+ */
 export default class Stack {
 	// the stack trace is structured like this:
 	// - first index: the function name
@@ -12,6 +15,9 @@ export default class Stack {
 	private stacktrace: FixedArray<[string, Token, Stack]> = new FixedArray(MAX_STACKTRACE_LENGTH);
 	public executingFunction = false;
 
+	/**
+	 * Signs to the latest function child that execution is over
+	 */
 	private removeExecution() {
 		const latest = this.stacktrace.get(this.stacktrace.length - 1);
 		if (latest) {
@@ -23,6 +29,11 @@ export default class Stack {
 		this.executingFunction = false;
 	}
 
+	/**
+	 * Signs to the latest function child that execution is starting
+	 * @param name the name of the function
+	 * @param token the token of the function, used for locations
+	 */
 	public addFunctionCall(name: string, token: Token) {
 		if (this.executingFunction) {
 			const latest = this.stacktrace.get(this.stacktrace.length - 1);
@@ -41,6 +52,10 @@ export default class Stack {
 		this.removeExecution();
 	}
 
+	/**
+	 * Translates the stack and it's children to a more processed array
+	 * @param stack the stack to unwrap
+	 */
 	public unwrap(stack: [string, Token, Stack][]): any {
 		const result = [];
 
@@ -56,6 +71,9 @@ export default class Stack {
 		return result;
 	}
 
+	/**
+	 * Returns the raw stacktrace
+	 */
 	public getStacktrace() {
 		return this.stacktrace.getArray();
 	}
