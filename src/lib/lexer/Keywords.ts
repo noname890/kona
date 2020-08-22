@@ -1,6 +1,6 @@
 import { TokenType } from './TokenTypes';
 
-const Keywords = {
+const Keywords: any = {
 	import: TokenType.IMPORT,
 	export: TokenType.EXPORT,
 	as: TokenType.AS,
