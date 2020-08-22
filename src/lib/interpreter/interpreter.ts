@@ -1,27 +1,36 @@
-import { ExpVisitors } from '../expressions/ExpVisitors';
+// ---------- HELPERS ---------- //
+
 import * as Expr from '../expressions/exp';
+import * as Stmt from '../statements/stmt';
+import ReadInputImplement from './nativeImplements/readInput';
+import ReadInputSilentImplement from './nativeImplements/readInputSilent';
+import FormatImplement from './nativeImplements/format';
+import Environment from './Environment';
+import Stack from './Stack';
+import KonaFn from './KonaFn';
+import KonaCallable from './KonaCallable';
+import chalk from 'chalk';
+import pluralize from '../internal/utils/pluralize';
+
+// ---------- HELPERS ---------- //
+
+// ---------- TYPES ---------- //
+
+import { ExpVisitors } from '../expressions/ExpVisitors';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
 import { Token } from '../lexer/Token';
 import { throws } from '../internal/error/throws';
 import { TypeError } from '../internal/error/errorTypes/runtime/TypeError';
 import { KonaError } from '../internal/error/errorTypes/InternalKonaError';
-import chalk from 'chalk';
 import { StmtVisitors } from '../statements/StmtVisitors';
-import * as Stmt from '../statements/stmt';
 import { Statement } from '../statements/Statements';
-import Environment from './Environment';
 import { Break } from '../internal/error/errorTypes/runtime/Break';
 import { Continue } from '../internal/error/errorTypes/runtime/Continue';
 import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
-import KonaCallable from './KonaCallable';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
-import ReadInputImplement from './nativeImplements/readInput';
-import ReadInputSilentImplement from './nativeImplements/readInputSilent';
-import pluralize from '../internal/utils/pluralize';
-import FormatImplement from './nativeImplements/format';
-import Stack from './Stack';
-import KonaFn from './KonaFn';
+
+// ---------- TYPES ---------- //
 
 /**
  * The interpreter class
