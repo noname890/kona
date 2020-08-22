@@ -1,6 +1,6 @@
 import { TokenType } from './TokenTypes';
 
-const Keywords: any = {
+const Keywords = {
 	import: TokenType.IMPORT,
 	export: TokenType.EXPORT,
 	as: TokenType.AS,
@@ -32,4 +32,4 @@ const Keywords: any = {
 	pragma: TokenType.PRAGMA
 };
 
-export { Keywords };
+export default Keywords;
