@@ -10,7 +10,7 @@ import chalk from 'chalk';
 import { StmtVisitors } from '../statements/StmtVisitors';
 import * as Stmt from '../statements/stmt';
 import { Statement } from '../statements/Statements';
-import { Environment } from './Environment';
+import Environment from './Environment';
 import { Break } from '../internal/error/errorTypes/runtime/Break';
 import { Continue } from '../internal/error/errorTypes/runtime/Continue';
 import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
