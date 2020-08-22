@@ -1,7 +1,7 @@
 import KonaCallable from './KonaCallable';
 import { FunctionStmt } from '../statements/stmt';
 import Interpreter from './interpreter';
-import { Environment } from './Environment';
+import Environment from './Environment';
 
 export default class KonaFn implements KonaCallable {
 	private fnRepresentation: string;
