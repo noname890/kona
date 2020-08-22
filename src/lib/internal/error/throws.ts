@@ -23,9 +23,12 @@ function clamp(number: number, min: number): number {
 }
 
 function formatStackTrace(stack: any[], indent: number = 0): string[] {
+	// TODO: add option for user to choose stacktrae depth
+	const MAX_DEPTH = 6;
 	const result: string[] = [];
 
 	if (stack.length === 0) return result;
+	if (indent === MAX_DEPTH) return [];
 
 	for (const i in stack) {
 		result.push(' '.repeat(indent * 2) + stack[i][0]);
