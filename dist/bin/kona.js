@@ -6,7 +6,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var interpreter_1 = __importDefault(require("../lib/interpreter/interpreter"));
 var LexScanner_1 = __importDefault(require("../lib/lexer/LexScanner"));
-var Parser_1 = require("../lib/parser/Parser");
+var Parser_1 = __importDefault(require("../lib/parser/Parser"));
 var fs_1 = require("fs");
 if (process.argv[2] && process.argv.length < 4) {
     var file = void 0;
@@ -22,7 +22,7 @@ if (process.argv[2] && process.argv.length < 4) {
 function run(source, fileName) {
     // lex the file contents
     var lexed = new LexScanner_1.default(source, fileName).scan();
-    var parsed = new Parser_1.Parser(lexed, fileName).parse();
+    var parsed = new Parser_1.default(lexed, fileName).parse();
     var interpreter = new interpreter_1.default(fileName);
     if (parsed) {
         interpreter.interpret(parsed);
