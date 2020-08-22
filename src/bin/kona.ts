@@ -1,6 +1,6 @@
 #!/usr/bin/node
 
-import { Interpreter } from '../lib/interpreter/interpreter';
+import Interpreter from '../lib/interpreter/interpreter';
 import { LexScanner } from '../lib/lexer/LexScanner';
 import { Parser } from '../lib/parser/Parser';
 import { readFileSync } from 'fs';

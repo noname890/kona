@@ -1,5 +1,5 @@
 import KonaCallable from '../KonaCallable';
-import { Interpreter } from '../interpreter';
+import Interpreter from '../interpreter';
 import format from '../../std/format';
 import { KonaError } from '../../internal/error/errorTypes/InternalKonaError';
 import { throws } from '../../internal/error/throws';

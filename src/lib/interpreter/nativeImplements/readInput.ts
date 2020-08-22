@@ -1,6 +1,6 @@
 import KonaCallable from '../KonaCallable';
 import readInput from '../../std/readInput';
-import { Interpreter } from '../interpreter';
+import Interpreter from '../interpreter';
 
 export default class ReadInputImplement implements KonaCallable {
 	public arity() {
