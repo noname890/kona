@@ -1,5 +1,5 @@
 import Interpreter from './interpreter';
-import { Token } from '../lexer/Token';
+import Token from '../lexer/Token';
 
 /**
  * Interface that describes a function

@@ -1,4 +1,4 @@
-import { Token } from '../lexer/Token';
+import Token from '../lexer/Token';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
 import { Binary, Literal, Unary, Group, Variable, Assignment, Call } from '../expressions/exp';

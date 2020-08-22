@@ -19,7 +19,7 @@ import pluralize from '../internal/utils/pluralize';
 import { ExpVisitors } from '../expressions/ExpVisitors';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
-import { Token } from '../lexer/Token';
+import Token from '../lexer/Token';
 import { throws } from '../internal/error/throws';
 import { TypeError } from '../internal/error/errorTypes/runtime/TypeError';
 import { KonaError } from '../internal/error/errorTypes/InternalKonaError';

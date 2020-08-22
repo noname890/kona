@@ -1,4 +1,4 @@
-import { Token } from '../lexer/Token';
+import Token from '../lexer/Token';
 import FixedArray from '../internal/utils/FixedArray';
 
 const MAX_STACKTRACE_LENGTH = 10;

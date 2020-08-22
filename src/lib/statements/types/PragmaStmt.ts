@@ -1,6 +1,6 @@
 import { Statement } from '../Statements';
 import { StmtVisitors } from '../StmtVisitors';
-import { Token } from '../../lexer/Token';
+import Token from '../../lexer/Token';
 
 class PragmaStatement extends Statement {
 	constructor(public pragmaTarget: Token, public pragmaArg: Token) {

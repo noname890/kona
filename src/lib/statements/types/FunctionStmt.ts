@@ -1,5 +1,5 @@
 import { Statement } from '../Statements';
-import { Token } from '../../lexer/Token';
+import Token from '../../lexer/Token';
 import { StmtVisitors } from '../StmtVisitors';
 
 class FunctionStmt extends Statement {
