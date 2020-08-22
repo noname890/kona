@@ -8,3 +8,4 @@ export * from './types/PragmaStmt';
 export * from './types/BreakStmt';
 export * from './types/ContinueStmt';
 export * from './types/ConstStmt';
+export * from './types/FunctionStmt';

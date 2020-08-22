@@ -8,6 +8,7 @@ import { PragmaStatement } from './types/PragmaStmt';
 import { ContinueStmt } from './types/ContinueStmt';
 import { BreakStmt } from './types/BreakStmt';
 import { ConstStmt } from './types/ConstStmt';
+import { FunctionStmt } from './types/FunctionStmt';
 
 interface StmtVisitors {
 	visitExprStmt(visitor: ExpressionStmt): any;
@@ -20,6 +21,7 @@ interface StmtVisitors {
 	visitPragmaStmt(visitBlockStmt: PragmaStatement): any;
 	visitBreakStmt(visitBreakStmt: BreakStmt): any;
 	visitContinueStmt(visitContinueStmt: ContinueStmt): any;
+	visitFunctionStmt(visitor: FunctionStmt): any;
 }
 /* eslint no-undef: off */
 export { StmtVisitors };
