@@ -26,6 +26,7 @@ const Keywords: any = {
 	true: TokenType.TRUE,
 	false: TokenType.FALSE,
 	loop: TokenType.LOOP,
+	fn: TokenType.FUNCTION,
 	typeof: TokenType.TYPEOF,
 	sizeof: TokenType.SIZEOF,
 	pragma: TokenType.PRAGMA
