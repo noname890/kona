@@ -1,17 +1,26 @@
+// -------- HELPERS -------- //
+
+import * as Expr from '../expressions/exp';
+import * as Stmt from '../statements/stmt';
+import { throws } from '../internal/error/throws';
+
+// -------- HELPERS -------- //
+
+// -------- TYPES -------- //
+
 import Token from '../lexer/Token';
+import Keywords from '../lexer/Keywords';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
-import * as Expr from '../expressions/exp';
-import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import { Statement } from '../statements/Statements';
-import * as Stmt from '../statements/stmt';
 import { LogicalExpr } from '../expressions/types/Logical';
-import Keywords from '../lexer/Keywords';
+
+// -------- TYPES -------- //
 
 const GREEK_QUESTION_MARK = ';';
 
-class Parser {
+export default class Parser {
 	private current: number = 0;
 
 	constructor(public readonly tokens: Token[], public fileName: string) {}
@@ -617,5 +626,3 @@ class Parser {
 
 	// ----------HELPERS---------- //
 }
-
-export { Parser };
