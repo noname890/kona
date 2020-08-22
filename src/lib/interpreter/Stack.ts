@@ -1,38 +1,7 @@
 import { Token } from '../lexer/Token';
+import FixedArray from '../internal/utils/FixedArray';
 
 const MAX_STACKTRACE_LENGTH = 10;
-
-class FixedArray<T> {
-	private array: T[] = [];
-	public length = 0;
-
-	constructor(private maxLength: number) {}
-
-	public push(...items: T[]): void {
-		this.array.push(...items);
-		this.length += items.length;
-		if (this.array.length > this.maxLength) {
-			this.array.shift();
-		}
-	}
-
-	public pop(): T | undefined {
-		this.length--;
-		return this.array.pop();
-	}
-
-	public get(index: number = 0): T | undefined {
-		return this.array[index];
-	}
-
-	public forEach(cb: (value: T, index: number) => void): void {
-		this.array.forEach(cb);
-	}
-
-	public getArray() {
-		return this.array;
-	}
-}
 
 export default class Stack {
 	// the stack trace is structured like this:
