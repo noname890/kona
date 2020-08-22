@@ -7,7 +7,7 @@ import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import { Statement } from '../statements/Statements';
 import * as Stmt from '../statements/stmt';
 import { LogicalExpr } from '../expressions/types/Logical';
-import { Keywords } from '../lexer/Keywords';
+import Keywords from '../lexer/Keywords';
 
 const GREEK_QUESTION_MARK = ';';
 
