@@ -43,6 +43,11 @@ class Parser {
 				return varDeclare;
 			}
 		}
+
+		if (this.match(TokenType.FUNCTION)) {
+			return this.function('function');
+		}
+
 		return this.statement();
 	}
 
@@ -457,6 +462,39 @@ class Parser {
 		}
 		this.consume(TokenType.RIGHT_CURLY, "Expected '}', but found end of file.");
 		return statements;
+	}
+
+	private function(kind: string): Stmt.FunctionStmt {
+		const MAX_ARGS = 255;
+		const parameters: Token[] = [];
+		const name: Token = this.consume(
+			TokenType.IDENTIFIER,
+			`Expected ${kind} name, found '${this.currentToken().lexeme}'.`
+		);
+
+		this.consume(TokenType.LEFT_PAREN, `Expected '(' after ${kind} name.`);
+
+		if (!this.check(TokenType.RIGHT_PAREN)) {
+			do {
+				if (parameters.length >= MAX_ARGS) {
+					throws(new SyntaxError(`Cannot have more than ${MAX_ARGS} arguments.`), this.fileName, {
+						line: name.line,
+						column: (name.column || 1) - name.lexeme.length,
+						endColumn: name.column || 1,
+						exit: true
+					});
+				}
+
+				parameters.push(
+					this.consume(TokenType.IDENTIFIER, `Expected identifier, found '${this.currentToken().lexeme}'.`)
+				);
+			} while (this.match(TokenType.COMMA));
+
+			this.consume(TokenType.RIGHT_PAREN, `Expected ')' after ${kind} name.`);
+			this.consume(TokenType.LEFT_CURLY, `Expected '{' before ${kind} body.`);
+		}
+
+		return new Stmt.FunctionStmt(name, parameters, this.block());
 	}
 
 	private match(...tokentypes: TokenType[]): boolean {
