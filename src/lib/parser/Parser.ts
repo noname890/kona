@@ -1,7 +1,7 @@
 import Token from '../lexer/Token';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
-import { Binary, Literal, Unary, Group, Variable, Assignment, Call } from '../expressions/exp';
+import * as Expr from '../expressions/exp';
 import { throws } from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import { Statement } from '../statements/Statements';
@@ -92,41 +92,41 @@ class Parser {
 			const equals = this.previous();
 			let value = this.assignment();
 
-			if (expression instanceof Variable) {
+			if (expression instanceof Expr.Variable) {
 				// desugars `+=`, `-=`, `*=`, `/=`
 
 				switch (equals.type) {
 					case TokenType.PLUS_EQ:
-						value = new Binary(
-							new Variable(expression.name),
+						value = new Expr.Binary(
+							new Expr.Variable(expression.name),
 							new Token(TokenType.PLUS, '+=', null, expression.name.line, expression.name.column),
 							value
 						);
 						break;
 					case TokenType.MINUS_EQ:
-						value = new Binary(
-							new Variable(expression.name),
+						value = new Expr.Binary(
+							new Expr.Variable(expression.name),
 							new Token(TokenType.MINUS, '-=', null, expression.name.line, expression.name.column),
 							value
 						);
 						break;
 					case TokenType.MULTIPLY_EQ:
-						value = new Binary(
-							new Variable(expression.name),
+						value = new Expr.Binary(
+							new Expr.Variable(expression.name),
 							new Token(TokenType.MULTIPLY, '*=', null, expression.name.line, expression.name.column),
 							value
 						);
 						break;
 					case TokenType.DIV_EQ:
-						value = new Binary(
-							new Variable(expression.name),
+						value = new Expr.Binary(
+							new Expr.Variable(expression.name),
 							new Token(TokenType.DIV, '/=', null, expression.name.line, expression.name.column),
 							value
 						);
 						break;
 				}
 
-				return new Assignment(expression.name, value);
+				return new Expr.Assignment(expression.name, value);
 			}
 
 			throws(new SyntaxError("Tried to assign to '" + token.lexeme + "'. Expected variable."), this.fileName, {
@@ -168,7 +168,7 @@ class Parser {
 			const operator: Token = this.previous();
 			const right: Expression = this.comparison();
 
-			expression = new Binary(expression, operator, right);
+			expression = new Expr.Binary(expression, operator, right);
 		}
 
 		return expression;
@@ -187,7 +187,7 @@ class Parser {
 		) {
 			const operator: Token = this.previous();
 			const right: Expression = this.addition();
-			expression = new Binary(expression, operator, right);
+			expression = new Expr.Binary(expression, operator, right);
 		}
 		return expression;
 	}
@@ -199,7 +199,7 @@ class Parser {
 			const operator: Token = this.previous();
 			const right: Expression = this.multiplication();
 
-			expression = new Binary(expression, operator, right);
+			expression = new Expr.Binary(expression, operator, right);
 		}
 
 		return expression;
@@ -212,7 +212,7 @@ class Parser {
 			const operator: Token = this.previous();
 			const right: Expression = this.unary();
 
-			expression = new Binary(expression, operator, right);
+			expression = new Expr.Binary(expression, operator, right);
 		}
 
 		return expression;
@@ -222,7 +222,7 @@ class Parser {
 		if (this.match(TokenType.NOT, TokenType.MINUS)) {
 			const operator: Token = this.previous();
 			const right: Expression = this.unary();
-			return new Unary(operator, right);
+			return new Expr.Unary(operator, right);
 		}
 		return this.call();
 	}
@@ -241,28 +241,28 @@ class Parser {
 
 	private primary(): Expression {
 		if (this.match(TokenType.FALSE)) {
-			return new Literal(false);
+			return new Expr.Literal(false);
 		}
 		if (this.match(TokenType.TRUE)) {
-			return new Literal(true);
+			return new Expr.Literal(true);
 		}
 		if (this.match(TokenType.UNDEFINED)) {
-			return new Literal(undefined);
+			return new Expr.Literal(undefined);
 		}
 
 		if (this.match(TokenType.NUMBER, TokenType.STRING)) {
-			return new Literal(this.previous().literal);
+			return new Expr.Literal(this.previous().literal);
 		}
 
 		if (this.match(TokenType.LEFT_PAREN)) {
 			const expression: Expression = this.expression();
 			this.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
 
-			return new Group(expression);
+			return new Expr.Group(expression);
 		}
 
 		if (this.match(TokenType.IDENTIFIER)) {
-			return new Variable(this.previous());
+			return new Expr.Variable(this.previous());
 		}
 
 		if (this.currentToken().type === TokenType.EOF) {
@@ -282,7 +282,7 @@ class Parser {
 		});
 
 		// this is here so ts doesn't whine about returning undefined
-		return new Literal(undefined);
+		return new Expr.Literal(undefined);
 	}
 
 	// ----------RULES---------- //
@@ -301,7 +301,7 @@ class Parser {
 					"' as a variable name,\nor choose another non-conflicting name.\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords."
 				: HINT + '\nFor a complete list of keywords, visit https://github.com/kona-lang/kona/wiki/Keywords.'
 		);
-		let initializer: Expression = new Literal(undefined);
+		let initializer: Expression = new Expr.Literal(undefined);
 
 		if (this.match(TokenType.EQ)) {
 			initializer = this.expression();
@@ -414,7 +414,7 @@ class Parser {
 		}
 		// @ts-ignore
 		if (!condition) {
-			condition = new Literal(true);
+			condition = new Expr.Literal(true);
 		}
 		body = new Stmt.WhileStmt(condition, body);
 
@@ -596,7 +596,7 @@ class Parser {
 
 		const parenthesis = this.consume(TokenType.RIGHT_PAREN, "Expected ')' after argument list.");
 
-		return new Call(callee, leftParen, fnArguments, calleeToken);
+		return new Expr.Call(callee, leftParen, fnArguments, calleeToken);
 	}
 
 	private expectEndStatement(): void {
