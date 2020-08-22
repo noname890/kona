@@ -21,11 +21,12 @@ import ReadInputSilentImplement from './nativeImplements/readInputSilent';
 import pluralize from '../internal/utils/pluralize';
 import FormatImplement from './nativeImplements/format';
 import Stack from './Stack';
+import KonaFn from './KonaFn';
 
 class Interpreter implements ExpVisitors, StmtVisitors {
-	private globals = new Environment(this.fileName, null);
-	private env = this.globals;
 	public stack = new Stack();
+	public globals = new Environment(this.fileName, null, this.stack);
+	private env = this.globals;
 
 	constructor(public readonly fileName: string) {
 		this.globals.define('read_input', new ReadInputImplement());
@@ -88,7 +89,7 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 	}
 
 	public visitBlockStmt(statement: Stmt.BlockStmt): void {
-		this.executeBlock(statement.statements, new Environment(this.fileName, this.env));
+		this.executeBlock(statement.statements, new Environment(this.fileName, this.env, this.stack));
 	}
 
 	public visitIfStmt(statement: Stmt.IfStmt): void {
@@ -133,6 +134,11 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 			column: (statement.continueToken.column || 1) - statement.continueToken.lexeme.length,
 			endColumn: statement.continueToken.column || 1
 		});
+	}
+
+	public visitFunctionStmt(statement: Stmt.FunctionStmt) {
+		const fn = new KonaFn(statement);
+		this.env.define(statement.name.lexeme, fn);
 	}
 
 	public visitLogical(logical: Expr.LogicalExpr): any {
