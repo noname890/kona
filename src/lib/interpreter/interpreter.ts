@@ -404,7 +404,17 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 
 		this.env = env;
 		for (const i in statements) {
-			this.execute(statements[i]);
+			// because of how the break, continue and return statements are coded
+			// they throw to get either at the top of the interpreter (where an error is reported)
+			// or the function that handles those statements.
+			// this results in the env NOT getting swapped back, resulting
+			// in passing local variables to the outer scope
+			try {
+				this.execute(statements[i]);
+			} catch (e) {
+				this.env = previous;
+				throw e;
+			}
 		}
 		this.env = previous;
 	}
