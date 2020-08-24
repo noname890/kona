@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 import { expect } from 'chai';
-import { LexScanner } from '../dist/lib/lexer/LexScanner';
+import LexScanner from '../dist/lib/lexer/LexScanner';
 import { TokenType } from '../src/lib/lexer/TokenTypes';
 
 describe('LexScanner', () => {

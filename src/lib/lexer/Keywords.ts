@@ -32,4 +32,4 @@ const Keywords: any = {
 	pragma: TokenType.PRAGMA
 };
 
-export { Keywords };
+export default Keywords;

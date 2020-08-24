@@ -1,9 +1,9 @@
 import KonaCallable from '../KonaCallable';
-import { Interpreter } from '../interpreter';
+import Interpreter from '../interpreter';
 import format from '../../std/format';
 import { KonaError } from '../../internal/error/errorTypes/InternalKonaError';
-import { throws } from '../../internal/error/throws';
-import { Token } from '../../lexer/Token';
+import throws from '../../internal/error/throws';
+import Token from '../../lexer/Token';
 
 export default class FormatImplement implements KonaCallable {
 	public arity(): number {

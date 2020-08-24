@@ -1,5 +1,5 @@
 import { Statement } from '../Statements';
-import { Token } from '../../lexer/Token';
+import Token from '../../lexer/Token';
 import { Expression } from '../../expressions/Expression';
 import { StmtVisitors } from '../StmtVisitors';
 

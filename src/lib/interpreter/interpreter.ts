@@ -1,39 +1,56 @@
-import { ExpVisitors } from '../expressions/ExpVisitors';
+// ---------- HELPERS ---------- //
+
 import * as Expr from '../expressions/exp';
+import * as Stmt from '../statements/stmt';
+import ReadInputImplement from './nativeImplements/readInput';
+import ReadInputSilentImplement from './nativeImplements/readInputSilent';
+import FormatImplement from './nativeImplements/format';
+import Environment from './Environment';
+import Stack from './Stack';
+import KonaFn from './KonaFn';
+import KonaCallable from './KonaCallable';
+import chalk from 'chalk';
+import pluralize from '../internal/utils/pluralize';
+
+// ---------- HELPERS ---------- //
+
+// ---------- TYPES ---------- //
+
+import { ExpVisitors } from '../expressions/ExpVisitors';
 import { Expression } from '../expressions/Expression';
 import { TokenType } from '../lexer/TokenTypes';
-import { Token } from '../lexer/Token';
-import { throws } from '../internal/error/throws';
+import Token from '../lexer/Token';
+import throws from '../internal/error/throws';
 import { TypeError } from '../internal/error/errorTypes/runtime/TypeError';
 import { KonaError } from '../internal/error/errorTypes/InternalKonaError';
-import chalk from 'chalk';
 import { StmtVisitors } from '../statements/StmtVisitors';
-import * as Stmt from '../statements/stmt';
 import { Statement } from '../statements/Statements';
-import { Environment } from './Environment';
 import { Break } from '../internal/error/errorTypes/runtime/Break';
 import { Continue } from '../internal/error/errorTypes/runtime/Continue';
 import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
-import KonaCallable from './KonaCallable';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
-import ReadInputImplement from './nativeImplements/readInput';
-import ReadInputSilentImplement from './nativeImplements/readInputSilent';
-import pluralize from '../internal/utils/pluralize';
-import FormatImplement from './nativeImplements/format';
-import Stack from './Stack';
-import KonaFn from './KonaFn';
 
-class Interpreter implements ExpVisitors, StmtVisitors {
+// ---------- TYPES ---------- //
+
+/**
+ * The interpreter class
+ */
+export default class Interpreter implements ExpVisitors, StmtVisitors {
 	public stack = new Stack();
 	public globals = new Environment(this.fileName, null, this.stack);
 	private env = this.globals;
 
 	constructor(public readonly fileName: string) {
+		// define the global functions, implementations can be found in `std`
 		this.globals.define('read_input', new ReadInputImplement());
 		this.globals.define('read_input_silent', new ReadInputSilentImplement());
 		this.globals.define('format', new FormatImplement());
 	}
 
+	/**
+	 * Interprets a list of parsed statements
+	 * @param statements the parsed file
+	 */
 	public interpret(statements: Statement[]) {
 		try {
 			for (const i in statements) {
@@ -63,10 +80,18 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	// ----------VISITORS---------- //
 
+	/**
+	 * Evaluates an expression
+	 * @param statement the expression
+	 */
 	public visitExprStmt(statement: Stmt.ExpressionStmt): void {
 		this.evaluate(statement.expression);
 	}
 
+	/**
+	 * Evaluates the right hand expression and prints it
+	 * @param statement the print statement
+	 */
 	public visitPrintStmt(statement: Stmt.PrintStmt): void {
 		const val: any = this.evaluate(statement.expression);
 		const unescapeJs = require('unescape-js');
@@ -74,6 +99,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		console.log(unescapeJs(this.stringify(val)));
 	}
 
+	/**
+	 * Defines a variable
+	 * @param statement the var statement
+	 */
 	public visitVariableStmt(statement: Stmt.VariableStmt): void {
 		let value: any;
 
@@ -84,14 +113,26 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		this.env.define(statement.name.lexeme, value);
 	}
 
+	/**
+	 * Defines a constant
+	 * @param statement the const statement
+	 */
 	public visitConstStmt(statement: Stmt.ConstStmt): void {
 		this.env.defineConst(statement.name.lexeme, this.evaluate(statement.initializer));
 	}
 
+	/**
+	 * Executes a block of code and creates a new scope that is dropped at the end
+	 * @param statement the block statement
+	 */
 	public visitBlockStmt(statement: Stmt.BlockStmt): void {
 		this.executeBlock(statement.statements, new Environment(this.fileName, this.env, this.stack));
 	}
 
+	/**
+	 * Check if the condition is truthy and executes the corresponding block
+	 * @param statement the if statement
+	 */
 	public visitIfStmt(statement: Stmt.IfStmt): void {
 		if (this.isTruthy(this.evaluate(statement.condition))) {
 			this.execute(statement.thenBlock);
@@ -100,6 +141,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		}
 	}
 
+	/**
+	 * Loops every time the condition is truthy
+	 * @param statement the while statement
+	 */
 	public visitWhileStmt(statement: Stmt.WhileStmt): void {
 		while (this.isTruthy(this.evaluate(statement.condition))) {
 			try {
@@ -116,10 +161,18 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		}
 	}
 
+	/**
+	 * Defines a pragma
+	 * @param statement the pragma statement
+	 */
 	public visitPragmaStmt(statement: Stmt.PragmaStatement): void {
 		this.env.definePragma(statement.pragmaTarget.lexeme, statement.pragmaArg.lexeme);
 	}
 
+	/**
+	 * Breaks if in a while or for loop
+	 * @param statement the break statement
+	 */
 	public visitBreakStmt(statement: Stmt.BreakStmt): void {
 		throw new Break({
 			line: statement.breakToken.line,
@@ -128,6 +181,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		});
 	}
 
+	/**
+	 * Continues if in a while or for loop
+	 * @param statement the continue statement
+	 */
 	public visitContinueStmt(statement: Stmt.ContinueStmt): void {
 		throw new Continue({
 			line: statement.continueToken.line,
@@ -136,11 +193,28 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		});
 	}
 
+	/**
+	 * Defines a function
+	 * @param statement the function statement
+	 */
 	public visitFunctionStmt(statement: Stmt.FunctionStmt) {
 		const fn = new KonaFn(statement);
 		this.env.define(statement.name.lexeme, fn);
 	}
 
+	/**
+	 * Returns true if expression evaluates to true
+	 * @param logical the logical expression
+	 * @example
+	 * true && true // => true
+	 * true && false // => false
+	 * false && false // => false
+	 * !true // => false
+	 * !false // => true
+	 * 1 // => true
+	 * 'string' // => true
+	 * 0 // => false
+	 */
 	public visitLogical(logical: Expr.LogicalExpr): any {
 		const left = this.evaluate(logical.left);
 
@@ -153,10 +227,18 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		return this.evaluate(logical.right);
 	}
 
+	/**
+	 * Gets a var from the env
+	 * @param expression the function expression
+	 */
 	public visitVar(expression: Expr.Variable): any {
 		return this.env.getVar(expression.name);
 	}
 
+	/**
+	 * Returns the literal value
+	 * @param expression the literal
+	 */
 	public visitLiteral(expression: Expr.Literal): any {
 		return expression.value;
 	}
@@ -165,6 +247,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		return this.evaluate(expression.expression);
 	}
 
+	/**
+	 * Handles arithmetic and comparison
+	 * @param expression the binary expression
+	 */
 	public visitBinary(expression: Expr.Binary): any {
 		const left: any = this.evaluate(expression.leftExp);
 		const right: any = this.evaluate(expression.rightExp);
@@ -235,6 +321,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		}
 	}
 
+	/**
+	 * Calls the specified function
+	 * @param expression the call expression
+	 */
 	public visitCall(expression: Expr.Call): any {
 		if (!(expression.callee instanceof Expr.Variable)) {
 			this.throwError(new ReferenceError('Can only call functions.'), expression.calleeToken);
@@ -271,6 +361,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		return callResult;
 	}
 
+	/**
+	 * Assigns a value to a variable
+	 * @param expression the assignment expression
+	 */
 	public visitAssignment(expression: Expr.Assignment): any {
 		const value = this.evaluate(expression.value);
 
@@ -279,6 +373,10 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		return value;
 	}
 
+	/**
+	 * Handles `-` and `!`
+	 * @param expression the unary expression
+	 */
 	public visitUnary(expression: Expr.Unary): any {
 		const right: any = this.evaluate(expression.right);
 
@@ -296,16 +394,35 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	// ----------HELPERS---------- //
 
+	/**
+	 * Executes a block and creates a new scope
+	 * @param statements the statements of the block
+	 * @param env the current environment
+	 */
 	public executeBlock(statements: Statement[], env: Environment) {
 		const previous: Environment = this.env;
 
 		this.env = env;
 		for (const i in statements) {
-			this.execute(statements[i]);
+			// because of how the break, continue and return statements are coded
+			// they throw to get either at the top of the interpreter (where an error is reported)
+			// or the function that handles those statements.
+			// this results in the env NOT getting swapped back, resulting
+			// in passing local variables to the outer scope
+			try {
+				this.execute(statements[i]);
+			} catch (e) {
+				this.env = previous;
+				throw e;
+			}
 		}
 		this.env = previous;
 	}
 
+	/**
+	 * Checks if a value is truthy or not
+	 * @param val the value
+	 */
 	public isTruthy(val: any): boolean {
 		if (val === undefined) {
 			return false;
@@ -316,14 +433,26 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		return true;
 	}
 
+	/**
+	 * Calls the accept function on an expression and passes this current instance
+	 * @param expression the expression to evaluate
+	 */
 	public evaluate(expression: Expression): any {
 		return expression.accept(this);
 	}
 
+	/**
+	 * Same as evaluate but for statements
+	 * @param statement the statement to execute
+	 */
 	public execute(statement: Statement): void {
 		statement.accept(this);
 	}
 
+	/**
+	 * Turns values into safe representations
+	 * @param val
+	 */
 	public stringify(val: any): string {
 		if (val === undefined) {
 			return 'nil';
@@ -331,6 +460,12 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		return String(val);
 	}
 
+	/**
+	 * Throws a type error
+	 * @param operator the operator that triggered the error
+	 * @param expected the expected type value
+	 * @param got the actual type value
+	 */
 	private throwTypeError(operator: Token, expected: string, got: string) {
 		const isNil = got == undefined ? 'nil' : got;
 
@@ -358,6 +493,12 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		);
 	}
 
+	/**
+	 * Throws an error
+	 * @param Error the error to throw
+	 * @param token the token that triggered the error
+	 * @param hint an optional hint
+	 */
 	private throwError(Error: KonaError, token: Token, hint?: string): void {
 		throws(Error, this.fileName, {
 			line: token.line,
@@ -369,6 +510,11 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 		});
 	}
 
+	/**
+	 * Check that every operand is a number
+	 * @param operator
+	 * @param operand
+	 */
 	private checkNumOperand(operator: Token, ...operand: any[]) {
 		for (const i in operand) {
 			if (typeof operand[i] !== 'number') {
@@ -379,5 +525,3 @@ class Interpreter implements ExpVisitors, StmtVisitors {
 
 	// ----------HELPERS---------- //
 }
-
-export { Interpreter };

@@ -1,77 +1,11 @@
-import { Token } from '../lexer/Token';
+import Token from '../lexer/Token';
+import FixedArray from '../internal/utils/FixedArray';
 
 const MAX_STACKTRACE_LENGTH = 10;
 
-// class StackInfo {
-//     private stack = {}
-
-//     public newFunction(name: string, token: Token) {
-//         this.stack[name]
-//     }
-// }
-
-// export default class Stack {
-// 	private stackTrace: any = {};
-// 	private functionCount = 0;
-// 	private currentFunctionScope: Stack[] = [];
-
-// 	private addCount() {
-// 		this.functionCount++;
-// 		if (this.functionCount >= MAX_FUNCTIONS) {
-// 			// we throw
-// 		}
-// 	}
-
-// 	public removeFunctionCall() {
-// 		this.functionCount--;
-// 		return this.currentFunctionScope.pop();
-// 	}
-
-// 	public getStacktrace() {
-// 		return this.stackTrace;
-// 	}
-
-// 	public addFunctionCall(name: string, token: Token) {
-// 		this.stackTrace[name] = this.stackTrace[name] || [];
-// 		this.stackTrace[name].push(token);
-// 		this.stackTrace[name].push(new Stack());
-// 		this.currentFunctionScope.push(this.stackTrace[name][this.stackTrace[name].length - 1]);
-// 		this.addCount();
-// 	}
-// }
-
-class FixedArray<T> {
-	private array: T[] = [];
-	public length = 0;
-
-	constructor(private maxLength: number) {}
-
-	public push(...items: T[]): void {
-		this.array.push(...items);
-		this.length += items.length;
-		if (this.array.length > this.maxLength) {
-			this.array.shift();
-		}
-	}
-
-	public pop(): T | undefined {
-		this.length--;
-		return this.array.pop();
-	}
-
-	public get(index: number = 0): T | undefined {
-		return this.array[index];
-	}
-
-	public forEach(cb: (value: T, index: number) => void): void {
-		this.array.forEach(cb);
-	}
-
-	public getArray() {
-		return this.array;
-	}
-}
-
+/**
+ * Class that stores the function stack info
+ */
 export default class Stack {
 	// the stack trace is structured like this:
 	// - first index: the function name
@@ -81,6 +15,9 @@ export default class Stack {
 	private stacktrace: FixedArray<[string, Token, Stack]> = new FixedArray(MAX_STACKTRACE_LENGTH);
 	public executingFunction = false;
 
+	/**
+	 * Signs to the latest function child that execution is over
+	 */
 	private removeExecution() {
 		const latest = this.stacktrace.get(this.stacktrace.length - 1);
 		if (latest) {
@@ -92,6 +29,11 @@ export default class Stack {
 		this.executingFunction = false;
 	}
 
+	/**
+	 * Signs to the latest function child that execution is starting
+	 * @param name the name of the function
+	 * @param token the token of the function, used for locations
+	 */
 	public addFunctionCall(name: string, token: Token) {
 		if (this.executingFunction) {
 			const latest = this.stacktrace.get(this.stacktrace.length - 1);
@@ -110,6 +52,10 @@ export default class Stack {
 		this.removeExecution();
 	}
 
+	/**
+	 * Translates the stack and it's children to a more processed array
+	 * @param stack the stack to unwrap
+	 */
 	public unwrap(stack: [string, Token, Stack][]): any {
 		const result = [];
 
@@ -125,6 +71,9 @@ export default class Stack {
 		return result;
 	}
 
+	/**
+	 * Returns the raw stacktrace
+	 */
 	public getStacktrace() {
 		return this.stacktrace.getArray();
 	}

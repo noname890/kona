@@ -1,6 +1,6 @@
 /* eslint no-unused-vars: */
 
-enum TokenTypes {
+export enum TokenType {
 	IMPORT = 'IMPORT',
 	EXPORT = 'EXPORT',
 	PRAGMA = 'PRAGMA',
@@ -72,5 +72,3 @@ enum TokenTypes {
 	EOL = 'EOL',
 	EOF = 'EOF'
 }
-
-export { TokenTypes as TokenType };

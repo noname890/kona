@@ -1,5 +1,5 @@
 import { Expression } from '../Expression';
-import { Token } from '../../lexer/Token';
+import Token from '../../lexer/Token';
 import { ExpVisitors } from '../ExpVisitors';
 
 class Unary extends Expression {

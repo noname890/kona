@@ -1,6 +1,6 @@
 import { TokenType } from './TokenTypes';
 
-class Token {
+export default class Token {
 	constructor(
 		public type: TokenType,
 		public lexeme: string,
@@ -13,5 +13,3 @@ class Token {
 		return this.type + ' ' + this.lexeme + ' ' + this.literal;
 	}
 }
-
-export { Token };

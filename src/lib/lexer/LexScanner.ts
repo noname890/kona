@@ -1,12 +1,12 @@
 /* eslint no-unused-vars: */
 
-import { Token } from './Token';
+import Token from './Token';
 import { TokenType } from './TokenTypes';
-import { throws } from '../internal/error/throws';
+import throws from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
-import { Keywords } from './Keywords';
+import Keywords from './Keywords';
 
-class LexScanner {
+export default class LexScanner {
 	public tokens: Token[] = [];
 	public start: number = 0;
 	public current: number = 0;
@@ -296,5 +296,3 @@ class LexScanner {
 
 	// -------DEFINITIONS------ //
 }
-
-export { LexScanner };

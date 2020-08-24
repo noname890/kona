@@ -1,8 +1,8 @@
 #!/usr/bin/node
 
-import { Interpreter } from '../lib/interpreter/interpreter';
-import { LexScanner } from '../lib/lexer/LexScanner';
-import { Parser } from '../lib/parser/Parser';
+import Interpreter from '../lib/interpreter/interpreter';
+import LexScanner from '../lib/lexer/LexScanner';
+import Parser from '../lib/parser/Parser';
 import { readFileSync } from 'fs';
 
 if (process.argv[2] && process.argv.length < 4) {
