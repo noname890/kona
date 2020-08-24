@@ -1,5 +1,5 @@
 import Token from '../lexer/Token';
-import { throws } from '../internal/error/throws';
+import throws from '../internal/error/throws';
 import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
 import Stack from './Stack';
 

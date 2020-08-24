@@ -117,7 +117,7 @@ function generateFormattedFile(filename: string, info: ErrorInfo) {
 	return formattedFile;
 }
 
-function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
+export default function throws(konaerror: KonaError, filename: string, info: ErrorInfo): never {
 	const STACK_EMPTY = chalk.italic.grey('empty');
 	const ERROR_ORIGIN = `${chalk.italic.grey(
 		normalize(filename) + ' at ' + String(info.line) + ':' + String(info.column)
@@ -157,6 +157,5 @@ ${chalk.redBright('------------------------------------')}
 	if (info.exit) {
 		process.exit(1);
 	}
+	throw konaerror;
 }
-
-export { throws };

@@ -2,7 +2,7 @@
 
 import * as Expr from '../expressions/exp';
 import * as Stmt from '../statements/stmt';
-import { throws } from '../internal/error/throws';
+import throws from '../internal/error/throws';
 
 // -------- HELPERS -------- //
 
