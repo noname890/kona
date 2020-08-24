@@ -4,3 +4,4 @@ lib
 node_modules
 src/*.js
 personal_tests
+tools/*.js
