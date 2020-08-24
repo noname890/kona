@@ -28,6 +28,7 @@ function formatStackTrace(stack: any[], indent: number = 0): string[] {
 	const result: string[] = [];
 
 	if (stack.length === 0) return result;
+	// prevent from displaying all the function children
 	if (indent === MAX_DEPTH) return [];
 
 	for (const i in stack) {
@@ -75,14 +76,15 @@ function findShortestWhitespaceAmount(array: string[]): number {
 }
 
 function generateFormattedFile(filename: string, info: ErrorInfo) {
-	// grabs the file, splits by newline, and grabs 8 lines
+	// grabs the file, splits by newline
 	const file = readFileSync(filename, 'utf8').split(NEW_LINE_REGEX);
+	const CLAMPED_MAX = info.line + 3 > file.length ? file.length : info.line + 3;
 
 	// because slice gives back a shill copy i have to clone it like this, otherwise it gets sorted
 	const shortestWhitespaceAmount = findShortestWhitespaceAmount([
-		...file.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3)
+		...file.slice(clamp(info.line - 4, 0), CLAMPED_MAX)
 	]);
-	const slicedFile = file.slice(clamp(info.line - 4, 0), info.line + 3 > file.length ? file.length : info.line + 3);
+	const slicedFile = file.slice(clamp(info.line - 4, 0), CLAMPED_MAX);
 	const formattedFile = slicedFile
 		.map((val, index) => {
 			const lineNumber = calculateLineNumber(index, info);
@@ -116,16 +118,21 @@ function generateFormattedFile(filename: string, info: ErrorInfo) {
 }
 
 function throws(konaerror: KonaError, filename: string, info: ErrorInfo) {
+	const STACK_EMPTY = chalk.italic.grey('empty');
 	const ERROR_ORIGIN = `${chalk.italic.grey(
 		normalize(filename) + ' at ' + String(info.line) + ':' + String(info.column)
 	)}`;
-	const STACK_EMPTY = chalk.italic.grey('empty');
 
 	const formattedFile = generateFormattedFile(filename, info);
 
 	console.log(`\n${chalk.redBright('---------------ERROR!---------------')} ${ERROR_ORIGIN}	
   ${chalk.bold.redBright(konaerror.errorType)}: ${chalk.bold.whiteBright(
 		// we format newlines to be indented based on where the first line of the error message starts
+		// example:
+		// ReferenceError: Variable '_' is not defined.\nVariables named '_' are not assigned.
+		// becomes:
+		// ReferenceError: Variable '_' is not defined.
+		// 				   Variables named '_' are not assigned.
 		konaerror.message.replace(NEW_LINE_REGEX, '\n' + ' '.repeat(konaerror.errorType.length + INDENTATION))
 	)}
   
