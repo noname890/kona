@@ -9,6 +9,9 @@ import Stack from '../../interpreter/Stack';
 const INDENTATION = 4;
 const NEW_LINE_REGEX = /\r?\n/g;
 
+/**
+ * Interface that describes an error
+ */
 interface ErrorInfo {
 	line: number;
 	column: number;
@@ -18,10 +21,20 @@ interface ErrorInfo {
 	exit?: true | false;
 }
 
+/**
+ * Clamps a number within a minimum bound
+ * @param number the number to clamp
+ * @param min the minimum
+ */
 function clamp(number: number, min: number): number {
 	return number < min ? min : number;
 }
 
+/**
+ * Takes an unwrapped stack and applies an indent to every child
+ * @param stack the unwrapped stack
+ * @param indent number that dictates the indent
+ */
 function formatStackTrace(stack: any[], indent: number = 0): string[] {
 	// TODO: add option for user to choose stacktrae depth
 	const MAX_DEPTH = 6;
@@ -39,6 +52,11 @@ function formatStackTrace(stack: any[], indent: number = 0): string[] {
 	return result;
 }
 
+/**
+ * Calculates the actual line number of an error based on an array index
+ * @param reference the array index
+ * @param info the error info
+ */
 function calculateLineNumber(reference: number, info: ErrorInfo) {
 	return reference + clamp(info.line - 3, 1);
 }
@@ -57,17 +75,26 @@ function calculateLinePadding(array: string[], info: ErrorInfo) {
 // // so chalk methods aren't accessible without doing this
 // i am dumb, i had to do `import chalk from 'chalk'`
 
+/**
+ * Finds the shortest index of the first character for each line
+ * @param array the split file
+ */
 function findShortestWhitespaceAmount(array: string[]): number {
+	// sort the array
 	const sorted = array.sort((a, b) => a.length - b.length);
 
 	if (sorted[0] !== undefined) {
+		// check that it isn't only whitespace
 		while (!sorted[0].trim()) {
+			// shift in place
 			sorted.shift();
 		}
 
+		// check if sorted[0] is not undefined
 		if ((sorted[0] as unknown) as boolean) {
+			// get the location of the first char
 			const shortest = sorted[0].search(/\S/);
-
+			// clamp and return
 			return shortest < 0 ? 0 : shortest;
 		}
 	}
@@ -75,6 +102,13 @@ function findShortestWhitespaceAmount(array: string[]): number {
 	return 0;
 }
 
+/**
+ * Takes the lines around the line where the error happened
+ * formats them and signs in red the line where the error was reported
+ * and colors in red the piece of code that triggered it
+ * @param filename filename
+ * @param info error info
+ */
 function generateFormattedFile(filename: string, info: ErrorInfo) {
 	// grabs the file, splits by newline
 	const file = readFileSync(filename, 'utf8').split(NEW_LINE_REGEX);
@@ -117,6 +151,16 @@ function generateFormattedFile(filename: string, info: ErrorInfo) {
 	return formattedFile;
 }
 
+/**
+ * Prints a formatted error trace to the screen, with:
+ *  - Error message and type of error
+ *  - Error location
+ *  - Stacktrace
+ *  - Hints
+ * @param konaerror the error class
+ * @param filename name of the file where the error originated
+ * @param info the info about the error
+ */
 export default function throws(konaerror: KonaError, filename: string, info: ErrorInfo): never {
 	const STACK_EMPTY = chalk.italic.grey('empty');
 	const ERROR_ORIGIN = `${chalk.italic.grey(
