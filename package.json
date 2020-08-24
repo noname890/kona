@@ -10,7 +10,9 @@
 	"scripts": {
 		"test": "npx ts-mocha --paths test/**.test.ts",
 		"build": "tsc --target es5",
-		"prepublish": "npm run build"
+		"prepublish": "npm run build",
+		"build-tools": "tsc ./tcreate.ts --esModuleInterop",
+		"tcreate": "node ./tools/tcreate.js"
 	},
 	"keywords": [],
 	"author": "",
