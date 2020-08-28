@@ -2,6 +2,7 @@ import KonaCallable from './KonaCallable';
 import { FunctionStmt } from '../statements/stmt';
 import Interpreter from './interpreter';
 import Environment from './Environment';
+import { Return } from '../internal/error/errorTypes/runtime/Return';
 
 export default class KonaFn implements KonaCallable {
 	private fnRepresentation: string;
@@ -29,7 +30,14 @@ export default class KonaFn implements KonaCallable {
 		for (const i in this.declaration.params) {
 			env.define(this.declaration.params[i].lexeme, args[i]);
 		}
-		interpreter.executeBlock(this.declaration.body, env);
+
+		try {
+			interpreter.executeBlock(this.declaration.body, env);
+		} catch (e) {
+			if (e instanceof Return) {
+				return e.value;
+			}
+		}
 
 		return undefined;
 	}
