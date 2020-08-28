@@ -344,7 +344,7 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 		const fnArguments: any[] = [];
 		const fn = (callee as unknown) as KonaCallable;
 
-		if (!fn.arity && !fn.callFn && !fn.toString) {
+		if (!fn.arity || !fn.callFn || !fn.toString) {
 			this.throwError(new ReferenceError('Can only call functions.'), expression.calleeToken);
 		}
 
