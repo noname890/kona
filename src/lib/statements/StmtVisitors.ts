@@ -1,29 +1,18 @@
-import { ExpressionStmt } from './types/ExpressionStmt';
-import { PrintStmt } from './types/PrintStmt';
-import { VariableStmt } from './types/VariableStmt';
-import { BlockStmt } from './types/BlockStmt';
-import { IfStmt } from './types/IfStmt';
-import { WhileStmt } from './types/WhileStmt';
-import { PragmaStatement } from './types/PragmaStmt';
-import { ContinueStmt } from './types/ContinueStmt';
-import { BreakStmt } from './types/BreakStmt';
-import { ConstStmt } from './types/ConstStmt';
-import { FunctionStmt } from './types/FunctionStmt';
-import { ReturnStmt } from './types/ReturnStmt';
+import * as Stmt from './stmt'
 
 interface StmtVisitors {
-	visitExprStmt(visitor: ExpressionStmt): any;
-	visitPrintStmt(visitor: PrintStmt): any;
-	visitVariableStmt(visitor: VariableStmt): any;
-	visitConstStmt(visitor: ConstStmt): any;
-	visitBlockStmt(visitor: BlockStmt): any;
-	visitIfStmt(visitor: IfStmt): any;
-	visitWhileStmt(visitor: WhileStmt): any;
-	visitPragmaStmt(visitBlockStmt: PragmaStatement): any;
-	visitBreakStmt(visitBreakStmt: BreakStmt): any;
-	visitContinueStmt(visitContinueStmt: ContinueStmt): any;
-	visitFunctionStmt(visitor: FunctionStmt): any;
-	visitReturnStmt(visitor: ReturnStmt): any
+	visitExprStmt(visitor: Stmt.ExpressionStmt): any;
+	visitPrintStmt(visitor: Stmt.PrintStmt): any;
+	visitVariableStmt(visitor: Stmt.VariableStmt): any;
+	visitConstStmt(visitor: Stmt.ConstStmt): any;
+	visitBlockStmt(visitor: Stmt.BlockStmt): any;
+	visitIfStmt(visitor: Stmt.IfStmt): any;
+	visitWhileStmt(visitor: Stmt.WhileStmt): any;
+	visitPragmaStmt(visitBlockStmt: Stmt.PragmaStatement): any;
+	visitBreakStmt(visitBreakStmt: Stmt.BreakStmt): any;
+	visitContinueStmt(visitContinueStmt: Stmt.ContinueStmt): any;
+	visitFunctionStmt(visitor: Stmt.FunctionStmt): any;
+	visitReturnStmt(visitor: Stmt.ReturnStmt): any
 }
 /* eslint no-undef: off */
 export { StmtVisitors };
