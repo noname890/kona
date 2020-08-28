@@ -9,6 +9,7 @@ import { ContinueStmt } from './types/ContinueStmt';
 import { BreakStmt } from './types/BreakStmt';
 import { ConstStmt } from './types/ConstStmt';
 import { FunctionStmt } from './types/FunctionStmt';
+import { ReturnStmt } from './types/ReturnStmt';
 
 interface StmtVisitors {
 	visitExprStmt(visitor: ExpressionStmt): any;
@@ -22,6 +23,7 @@ interface StmtVisitors {
 	visitBreakStmt(visitBreakStmt: BreakStmt): any;
 	visitContinueStmt(visitContinueStmt: ContinueStmt): any;
 	visitFunctionStmt(visitor: FunctionStmt): any;
+	visitReturnStmt(visitor: ReturnStmt): any
 }
 /* eslint no-undef: off */
 export { StmtVisitors };

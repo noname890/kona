@@ -9,3 +9,4 @@ export * from './types/BreakStmt';
 export * from './types/ContinueStmt';
 export * from './types/ConstStmt';
 export * from './types/FunctionStmt';
+export * from './types/ReturnStmt'
