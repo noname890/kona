@@ -498,10 +498,10 @@ export default class Parser {
 					this.consume(TokenType.IDENTIFIER, `Expected identifier, found '${this.currentToken().lexeme}'.`)
 				);
 			} while (this.match(TokenType.COMMA));
-
-			this.consume(TokenType.RIGHT_PAREN, `Expected ')' after ${kind} name.`);
-			this.consume(TokenType.LEFT_CURLY, `Expected '{' before ${kind} body.`);
 		}
+
+		this.consume(TokenType.RIGHT_PAREN, `Expected ')' after ${kind} name.`);
+		this.consume(TokenType.LEFT_CURLY, `Expected '{' before ${kind} body.`);
 
 		return new Stmt.FunctionStmt(name, parameters, this.block());
 	}
