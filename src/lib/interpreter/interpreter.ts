@@ -29,6 +29,7 @@ import { Break } from '../internal/error/errorTypes/runtime/Break';
 import { Continue } from '../internal/error/errorTypes/runtime/Continue';
 import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
+import { Return } from '../internal/error/errorTypes/runtime/Return';
 
 // ---------- TYPES ---------- //
 
@@ -57,8 +58,8 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 				this.execute(statements[i]);
 			}
 		} catch (e) {
-			if (e instanceof Break || e instanceof Continue) {
-				// illegal break or continue statement
+			if (e instanceof Break || e instanceof Continue || e instanceof Return) {
+				// illegal break, continue or return statement
 				throws(e, this.fileName, {
 					line: e.position.line,
 					column: e.position.column,
@@ -200,6 +201,19 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 	public visitFunctionStmt(statement: Stmt.FunctionStmt) {
 		const fn = new KonaFn(statement);
 		this.env.define(statement.name.lexeme, fn);
+	}
+
+	public visitReturnStmt(statement: Stmt.ReturnStmt) {
+		let value;
+		if (statement.value) value = this.evaluate(statement.value);
+		throw new Return(
+			{
+				line: statement.keyword.line,
+				column: (statement.keyword.column || 1) - statement.keyword.lexeme.length,
+				endColumn: statement.keyword.column || 1
+			},
+			value
+		);
 	}
 
 	/**

@@ -85,6 +85,9 @@ export default class Parser {
 		if (this.match(TokenType.CONTINUE)) {
 			return this.continueStatement();
 		}
+		if (this.match(TokenType.RETURN)) {
+			return this.returnStatement();
+		}
 
 		return this.expressionStatement();
 	}
@@ -458,6 +461,17 @@ export default class Parser {
 		const keyword = this.previous();
 		this.expectEndStatement();
 		return new Stmt.ContinueStmt(keyword);
+	}
+
+	private returnStatement(): Statement {
+		const keyword: Token = this.previous();
+		let value: Expression | undefined;
+
+		if (!this.check(TokenType.SEMI_COL)) value = this.expression();
+
+		this.consume(TokenType.SEMI_COL, "Expected ';' after return statement.");
+
+		return new Stmt.ReturnStmt(keyword, value);
 	}
 
 	// ----------STATEMENTS---------- //

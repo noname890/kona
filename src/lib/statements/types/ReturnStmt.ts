@@ -4,7 +4,7 @@ import { Expression } from '../../expressions/Expression';
 import { StmtVisitors } from '../StmtVisitors';
 
 class ReturnStmt extends Statement {
-	constructor(public keyword: Token, public value: Expression) {
+	constructor(public keyword: Token, public value: Expression | undefined) {
 		super();
 	}
 
