@@ -340,13 +340,13 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 	 * @param expression the call expression
 	 */
 	public visitCall(expression: Expr.Call): any {
-		if (!(expression.callee instanceof Expr.Variable)) {
-			this.throwError(new ReferenceError('Can only call functions.'), expression.calleeToken);
-		}
-
 		const callee = this.evaluate(expression.callee);
 		const fnArguments: any[] = [];
 		const fn = (callee as unknown) as KonaCallable;
+
+		if (!fn.arity && !fn.callFn && !fn.toString) {
+			this.throwError(new ReferenceError('Can only call functions.'), expression.calleeToken);
+		}
 
 		for (const arg of expression.args) {
 			fnArguments.push(this.evaluate(arg));
