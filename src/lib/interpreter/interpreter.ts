@@ -352,18 +352,20 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 			fnArguments.push(this.evaluate(arg));
 		}
 
-		if (fnArguments.length !== fn.arity()) {
-			this.throwError(
-				new SyntaxError(
-					'Expected ' +
-						String(fn.arity()) +
-						pluralize(' argument/s', fn.arity()) +
-						', found ' +
-						String(fnArguments.length) +
-						'.'
-				),
-				expression.calleeToken
-			);
+		if (fn.arity() !== -1) {
+			if (fnArguments.length !== fn.arity()) {
+				this.throwError(
+					new SyntaxError(
+						'Expected ' +
+							String(fn.arity()) +
+							pluralize(' argument/s', fn.arity()) +
+							', found ' +
+							String(fnArguments.length) +
+							'.'
+					),
+					expression.calleeToken
+				);
+			}
 		}
 
 		this.stack.addFunctionCall(expression.calleeToken.lexeme, expression.calleeToken);

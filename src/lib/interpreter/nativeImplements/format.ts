@@ -7,7 +7,7 @@ import Token from '../../lexer/Token';
 
 export default class FormatImplement implements KonaCallable {
 	public arity(): number {
-		return 1;
+		return -1;
 	}
 
 	public callFn(interpreter: Interpreter, fnArguments: any[], fnName: Token) {
