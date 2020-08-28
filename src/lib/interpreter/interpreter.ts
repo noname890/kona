@@ -338,10 +338,10 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 			fnArguments.push(this.evaluate(arg));
 		}
 
-		if (fnArguments.length < fn.arity()) {
+		if (fnArguments.length !== fn.arity()) {
 			this.throwError(
 				new SyntaxError(
-					'Expected at least ' +
+					'Expected ' +
 						String(fn.arity()) +
 						pluralize(' argument/s', fn.arity()) +
 						', found ' +
