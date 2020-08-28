@@ -617,7 +617,7 @@ export default class Parser {
 			} while (this.match(TokenType.COMMA));
 		}
 
-		const parenthesis = this.consume(TokenType.RIGHT_PAREN, "Expected ')' after argument list.");
+		this.consume(TokenType.RIGHT_PAREN, "Expected ')' after argument list.");
 
 		return new Expr.Call(callee, leftParen, fnArguments, calleeToken);
 	}
