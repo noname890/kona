@@ -5,7 +5,9 @@
  */
 export default class FixedArray<T> {
 	private array: T[] = [];
-	public length = 0;
+	public get length() {
+		return this.array.length;
+	}
 
 	constructor(private maxLength: number) {}
 
@@ -14,10 +16,11 @@ export default class FixedArray<T> {
      * @param items the items to push to the array
      */
 	public push(...items: T[]): void {
-		this.array.push(...items);
-		this.length += items.length;
-		if (this.array.length > this.maxLength) {
-			this.array.shift();
+		for (const i in items) {
+			if (this.array.length >= this.maxLength) {
+				this.array.shift();
+			}
+			this.array.push(items[i]);
 		}
 	}
 
@@ -25,7 +28,6 @@ export default class FixedArray<T> {
      * Returns the last element from the array
      */
 	public pop(): T | undefined {
-		this.length--;
 		return this.array.pop();
 	}
 
