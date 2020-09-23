@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/PragmaStmt', () => {})
+describe('./src/lib/statements/types/PragmaStmt', () => {})

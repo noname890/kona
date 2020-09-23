@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/AstPrinter', () => {})
+describe('./src/lib/internal/utils/AstPrinter', () => {})

@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/PrintStmt', () => {})
+describe('./src/lib/statements/types/PrintStmt', () => {})

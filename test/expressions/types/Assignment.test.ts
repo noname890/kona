@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Assignment', () => {})
+describe('./src/lib/expressions/types/Assignment', () => {})

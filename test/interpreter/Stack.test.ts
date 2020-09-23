@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Stack', () => {})
+describe('./src/lib/interpreter/Stack', () => {})

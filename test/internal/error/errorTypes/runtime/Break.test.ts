@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Break', () => {})
+describe('./src/lib/internal/error/errorTypes/runtime/Break', () => {})

@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/IfStmt', () => {})
+describe('./src/lib/statements/types/IfStmt', () => {})

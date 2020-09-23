@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/TypeError', () => {})
+describe('./src/lib/internal/error/errorTypes/runtime/TypeError', () => {})

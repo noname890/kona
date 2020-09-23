@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/pluralize', () => {})
+describe('./src/lib/internal/utils/pluralize', () => {})

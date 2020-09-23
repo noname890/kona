@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Logical', () => {})
+describe('./src/lib/expressions/types/Logical', () => {})

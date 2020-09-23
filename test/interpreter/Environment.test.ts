@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Environment', () => {})
+describe('./src/lib/interpreter/Environment', () => {})

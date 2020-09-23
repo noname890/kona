@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Keywords', () => {})
+describe('./src/lib/lexer/Keywords', () => {})

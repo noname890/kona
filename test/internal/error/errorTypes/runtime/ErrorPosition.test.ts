@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/ErrorPosition', () => {})
+describe('./src/lib/internal/error/errorTypes/runtime/ErrorPosition', () => {})

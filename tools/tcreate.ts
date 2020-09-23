@@ -56,7 +56,7 @@ for (const i in fileList) {
 		testFileName,
 		`/* eslint-env jest */
 
-describe('${fileList[i].substring(fileList[i].lastIndexOf('/'), fileList[i].lastIndexOf('.'))}', () => {})
+describe('${fileList[i].substring(0, fileList[i].lastIndexOf('.'))}', () => {})
 `
 	);
 }

@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/ConstStmt', () => {})
+describe('./src/lib/statements/types/ConstStmt', () => {})

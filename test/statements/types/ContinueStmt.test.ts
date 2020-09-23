@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/ContinueStmt', () => {})
+describe('./src/lib/statements/types/ContinueStmt', () => {})

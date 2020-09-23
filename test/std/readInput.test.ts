@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/readInput', () => {})
+describe('./src/lib/std/readInput', () => {})

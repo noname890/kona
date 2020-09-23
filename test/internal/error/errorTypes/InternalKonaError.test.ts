@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/InternalKonaError', () => {})
+describe('./src/lib/internal/error/errorTypes/InternalKonaError', () => {})

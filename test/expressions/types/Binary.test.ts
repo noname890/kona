@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Binary', () => {})
+describe('./src/lib/expressions/types/Binary', () => {})

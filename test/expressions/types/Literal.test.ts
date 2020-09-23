@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Literal', () => {})
+describe('./src/lib/expressions/types/Literal', () => {})

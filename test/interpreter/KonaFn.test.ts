@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/KonaFn', () => {})
+describe('./src/lib/interpreter/KonaFn', () => {})

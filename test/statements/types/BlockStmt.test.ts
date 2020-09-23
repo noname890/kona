@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/BlockStmt', () => {})
+describe('./src/lib/statements/types/BlockStmt', () => {})

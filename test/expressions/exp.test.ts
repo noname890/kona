@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/exp', () => {})
+describe('./src/lib/expressions/exp', () => {})

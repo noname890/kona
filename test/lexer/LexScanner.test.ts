@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/LexScanner', () => {})
+describe('./src/lib/lexer/LexScanner', () => {})

@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/FixedArray', () => {})
+describe('./src/lib/internal/utils/FixedArray', () => {})

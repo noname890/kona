@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Parser', () => {})
+describe('./src/lib/parser/Parser', () => {})

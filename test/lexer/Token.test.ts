@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Token', () => {})
+describe('./src/lib/lexer/Token', () => {})

@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/throws', () => {})
+describe('./src/lib/internal/error/throws', () => {})

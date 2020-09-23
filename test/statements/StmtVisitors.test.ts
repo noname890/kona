@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/StmtVisitors', () => {})
+describe('./src/lib/statements/StmtVisitors', () => {})

@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Variable', () => {})
+describe('./src/lib/expressions/types/Variable', () => {})

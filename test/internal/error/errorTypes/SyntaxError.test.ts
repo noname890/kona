@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/SyntaxError', () => {})
+describe('./src/lib/internal/error/errorTypes/SyntaxError', () => {})

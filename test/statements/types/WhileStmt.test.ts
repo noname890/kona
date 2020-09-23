@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/WhileStmt', () => {})
+describe('./src/lib/statements/types/WhileStmt', () => {})

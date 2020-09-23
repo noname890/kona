@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/Continue', () => {})
+describe('./src/lib/internal/error/errorTypes/runtime/Continue', () => {})

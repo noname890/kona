@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/VariableStmt', () => {})
+describe('./src/lib/statements/types/VariableStmt', () => {})

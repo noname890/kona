@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/readInputSilent', () => {})
+describe('./src/lib/interpreter/nativeImplements/readInputSilent', () => {})

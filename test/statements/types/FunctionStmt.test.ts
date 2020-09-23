@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/FunctionStmt', () => {})
+describe('./src/lib/statements/types/FunctionStmt', () => {})

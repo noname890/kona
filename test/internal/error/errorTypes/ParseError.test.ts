@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/ParseError', () => {})
+describe('./src/lib/internal/error/errorTypes/ParseError', () => {})

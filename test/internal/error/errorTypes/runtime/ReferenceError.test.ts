@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/ReferenceError', () => {})
+describe('./src/lib/internal/error/errorTypes/runtime/ReferenceError', () => {})

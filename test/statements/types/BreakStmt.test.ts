@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-describe('/BreakStmt', () => {})
+describe('./src/lib/statements/types/BreakStmt', () => {})
