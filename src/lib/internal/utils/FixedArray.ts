@@ -50,7 +50,7 @@ export default class FixedArray<T> {
 	/**
      * Gets the internal array
      */
-	public getArray() {
+	public getArray(): T[] {
 		return this.array;
 	}
 }
