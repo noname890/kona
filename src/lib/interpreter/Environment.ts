@@ -76,9 +76,6 @@ export default class Environment {
 	 * @param value value of the constant
 	 */
 	public defineConst(name: string, value: any): void {
-		if (name === '_' && !this.getPragma('allow_underscore_for_var_names')) {
-			return;
-		}
 		if (this.exists(name)) {
 			this.casts.push(name);
 		}
