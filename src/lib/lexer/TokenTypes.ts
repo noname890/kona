@@ -8,6 +8,7 @@ export enum TokenType {
 	VAL = 'VAL',
 	CONST = 'CONST',
 	FUNCTION = 'FUNCTION',
+	LAMBDA = 'LAMBDA',
 	COLON = 'COLON',
 	COMMA = 'COMMA',
 	SEMI_COL = 'SEMI_COL',

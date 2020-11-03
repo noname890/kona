@@ -6,6 +6,8 @@ import throws from '../internal/error/throws';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import Keywords from './Keywords';
 
+const LAMBDA = 'λ';
+
 export default class LexScanner {
 	public tokens: Token[] = [];
 	public start: number = 0;
@@ -153,7 +155,7 @@ export default class LexScanner {
 			default:
 				if (this.isDigit(char)) {
 					this.konaInt();
-				} else if (this.isAlpha(char)) {
+				} else if (this.isAlpha(char) || char === LAMBDA) {
 					this.konaIdentifier();
 				} else {
 					this.unexpected(char);
@@ -267,7 +269,7 @@ export default class LexScanner {
 	}
 
 	konaIdentifier() {
-		while (this.isAlphaNum(this.peek()) || this.peek() === '!') {
+		while (this.isAlphaNum(this.peek()) || this.peek() === '!' || this.peek() === LAMBDA) {
 			this.nextChar();
 		}
 		const ident = this.source.substring(this.start, this.current);

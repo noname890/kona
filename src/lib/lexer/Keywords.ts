@@ -27,6 +27,8 @@ const Keywords: any = {
 	false: TokenType.FALSE,
 	loop: TokenType.LOOP,
 	'fn!': TokenType.FUNCTION,
+	'lambda!': TokenType.LAMBDA,
+	'λ!': TokenType.LAMBDA,
 	typeof: TokenType.TYPEOF,
 	sizeof: TokenType.SIZEOF,
 	'pragma!': TokenType.PRAGMA
