@@ -267,10 +267,20 @@ export default class LexScanner {
 	}
 
 	konaIdentifier() {
-		while (this.isAlphaNum(this.peek())) {
+		while (this.isAlphaNum(this.peek()) || this.peek() === '!') {
 			this.nextChar();
 		}
-		const type = Keywords[this.source.substring(this.start, this.current)] || TokenType.IDENTIFIER;
+		const ident = this.source.substring(this.start, this.current);
+		const type = Keywords[ident] || TokenType.IDENTIFIER;
+
+		if (type === TokenType.IDENTIFIER && ident[ident.length - 1] === '!') {
+			throws(new SyntaxError('Identifiers that end with an \'!\' are reserved only for\ndeclarative keywords.'), this.fileName, {
+				line: this.line + 1,
+				column: this.column - ident.length,
+				endColumn: this.column,
+				exit: true
+			});
+		}
 
 		this.addToken(type);
 	}
