@@ -10,7 +10,7 @@ export default class KonaLambda implements KonaCallable {
 	constructor(public declaration: Lambda) {
 		// generate representation of function
 		const argList = this.declaration.params.map((arg) => arg.lexeme);
-		this.fnRepresentation = `lambda!(${argList.join(', ')}) { /* kona code */ } `;
+		this.fnRepresentation = `λ!(${argList.join(', ')}) { /* kona code */ } `;
 	}
 
 	/**

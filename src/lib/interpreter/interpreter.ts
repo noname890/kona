@@ -369,7 +369,10 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 			}
 		}
 
-		this.stack.addFunctionCall(expression.calleeToken.lexeme, expression.calleeToken);
+		this.stack.addFunctionCall(
+			fn instanceof KonaLambda ? '<anonymous>' : expression.calleeToken.lexeme,
+			expression.calleeToken
+		);
 
 		const callResult = fn.callFn(this, fnArguments, expression.calleeToken);
 

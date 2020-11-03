@@ -4,8 +4,6 @@ import { ExpVisitors } from '../ExpVisitors';
 import { Statement } from '../../statements/Statements';
 
 class Lambda extends Expression {
-	public readonly name = '<anonymous>';
-
 	constructor(public params: Token[], public body: Statement[]) {
 		super();
 	}
