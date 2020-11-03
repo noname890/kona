@@ -241,7 +241,7 @@ export default class Parser {
 	}
 
 	private call(): Expression {
-		let expr = this.primary();
+		let expr = this.lambda();
 
 		while (true) {
 			if (this.match(TokenType.LEFT_PAREN)) {
@@ -520,33 +520,41 @@ export default class Parser {
 		return new Stmt.FunctionStmt(name, parameters, this.block());
 	}
 
-	private lambda(): Expr.Lambda {
+	private lambda(): Expression {
 		const parameters: Token[] = [];
-		const lambdaKeyword = this.consume(TokenType.LEFT_PAREN, `Expected '(' after 'lambda' keyword.`);
 
-		// TODO: Separate in function
+		if (this.match(TokenType.LAMBDA)) {
+			const leftParen = this.consume(TokenType.LEFT_PAREN, `Expected '(' after 'lambda!' keyword.`);
 
-		if (!this.check(TokenType.RIGHT_PAREN)) {
-			do {
-				if (parameters.length >= MAX_ARGS) {
-					throws(new SyntaxError(`Cannot have more than ${MAX_ARGS} arguments.`), this.fileName, {
-						line: lambdaKeyword.line,
-						column: (lambdaKeyword.column || 1) - lambdaKeyword.lexeme.length,
-						endColumn: lambdaKeyword.column || 1,
-						exit: true
-					});
-				}
+			// TODO: Separate in function
 
-				parameters.push(
-					this.consume(TokenType.IDENTIFIER, `Expected identifier, found '${this.currentToken().lexeme}'.`)
-				);
-			} while (this.match(TokenType.COMMA));
+			if (!this.check(TokenType.RIGHT_PAREN)) {
+				do {
+					if (parameters.length >= MAX_ARGS) {
+						throws(new SyntaxError(`Cannot have more than ${MAX_ARGS} arguments.`), this.fileName, {
+							line: leftParen.line,
+							column: (leftParen.column || 1) - leftParen.lexeme.length,
+							endColumn: leftParen.column || 1,
+							exit: true
+						});
+					}
+
+					parameters.push(
+						this.consume(
+							TokenType.IDENTIFIER,
+							`Expected identifier, found '${this.currentToken().lexeme}'.`
+						)
+					);
+				} while (this.match(TokenType.COMMA));
+			}
+
+			this.consume(TokenType.RIGHT_PAREN, `Expected ')' after lambda arguments.`);
+			this.consume(TokenType.LEFT_CURLY, `Expected '{' before lambda body.`);
+
+			return new Expr.Lambda(parameters, this.block());
+		} else {
+			return this.primary();
 		}
-
-		this.consume(TokenType.RIGHT_PAREN, `Expected ')' after lambda arguments.`);
-		this.consume(TokenType.LEFT_CURLY, `Expected '{' before lambda body.`);
-
-		return new Expr.Lambda(parameters, this.block());
 	}
 
 	private match(...tokentypes: TokenType[]): boolean {

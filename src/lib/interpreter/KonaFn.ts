@@ -10,7 +10,7 @@ export default class KonaFn implements KonaCallable {
 	constructor(public declaration: FunctionStmt) {
 		// generate representation of function
 		const argList = this.declaration.params.map((arg) => arg.lexeme);
-		this.fnRepresentation = `fn ${this.declaration.name.lexeme}(${argList.join(', ')}) { /* kona code */ } `;
+		this.fnRepresentation = `fn! ${this.declaration.name.lexeme}(${argList.join(', ')}) { /* kona code */ } `;
 	}
 
 	/**
