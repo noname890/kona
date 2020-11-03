@@ -9,6 +9,7 @@ import { Call } from './types/Call';
 import { Variable } from './types/Variable';
 import { Assignment } from './types/Assignment';
 import { LogicalExpr } from './types/Logical';
+import { Lambda } from './types/Lambda';
 
 interface ExpVisitors {
 	visitBinary(visitor: Binary): any;
@@ -19,6 +20,7 @@ interface ExpVisitors {
 	visitVar(varExpr: Variable): any;
 	visitAssignment(assignment: Assignment): any;
 	visitLogical(logic: LogicalExpr): any;
+	visitLambda(lambda: Lambda): any
 }
 
 export { ExpVisitors };

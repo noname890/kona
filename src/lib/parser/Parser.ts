@@ -19,6 +19,7 @@ import { LogicalExpr } from '../expressions/types/Logical';
 // -------- TYPES -------- //
 
 const GREEK_QUESTION_MARK = ';';
+const MAX_ARGS = 255;
 
 export default class Parser {
 	private current: number = 0;
@@ -488,7 +489,6 @@ export default class Parser {
 	}
 
 	private function(kind: string): Stmt.FunctionStmt {
-		const MAX_ARGS = 255;
 		const parameters: Token[] = [];
 		const name: Token = this.consume(
 			TokenType.IDENTIFIER,
@@ -518,6 +518,35 @@ export default class Parser {
 		this.consume(TokenType.LEFT_CURLY, `Expected '{' before ${kind} body.`);
 
 		return new Stmt.FunctionStmt(name, parameters, this.block());
+	}
+
+	private lambda(): Expr.Lambda {
+		const parameters: Token[] = [];
+		const lambdaKeyword = this.consume(TokenType.LEFT_PAREN, `Expected '(' after 'lambda' keyword.`);
+
+		// TODO: Separate in function
+
+		if (!this.check(TokenType.RIGHT_PAREN)) {
+			do {
+				if (parameters.length >= MAX_ARGS) {
+					throws(new SyntaxError(`Cannot have more than ${MAX_ARGS} arguments.`), this.fileName, {
+						line: lambdaKeyword.line,
+						column: (lambdaKeyword.column || 1) - lambdaKeyword.lexeme.length,
+						endColumn: lambdaKeyword.column || 1,
+						exit: true
+					});
+				}
+
+				parameters.push(
+					this.consume(TokenType.IDENTIFIER, `Expected identifier, found '${this.currentToken().lexeme}'.`)
+				);
+			} while (this.match(TokenType.COMMA));
+		}
+
+		this.consume(TokenType.RIGHT_PAREN, `Expected ')' after lambda arguments.`);
+		this.consume(TokenType.LEFT_CURLY, `Expected '{' before lambda body.`);
+
+		return new Expr.Lambda(parameters, this.block());
 	}
 
 	private match(...tokentypes: TokenType[]): boolean {

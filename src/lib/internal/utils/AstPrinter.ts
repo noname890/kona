@@ -17,6 +17,8 @@ class AstPrinter implements ExpVisitors {
 		return expr.accept(this);
 	}
 
+	public visitLambda() {}
+
 	public visitBinary(binary: Binary): string {
 		return this.parenthesize(binary.operator.lexeme, binary.leftExp, binary.rightExp);
 	}
