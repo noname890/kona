@@ -1,17 +1,17 @@
 import { TokenType } from './TokenTypes';
 
 const Keywords: any = {
-	import: TokenType.IMPORT,
-	export: TokenType.EXPORT,
+	'import!': TokenType.IMPORT,
+	'export!': TokenType.EXPORT,
 	as: TokenType.AS,
-	val: TokenType.VAL,
-	const: TokenType.CONST,
+	'let!': TokenType.VAL,
+	'const!': TokenType.CONST,
 	return: TokenType.RETURN,
 	nil: TokenType.UNDEFINED,
 	new: TokenType.NEW,
 	throw: TokenType.THROW,
-	pub: TokenType.PUBLIC,
-	private: TokenType.PRIVATE,
+	'public!': TokenType.PUBLIC,
+	'private!': TokenType.PRIVATE,
 	if: TokenType.IF,
 	else: TokenType.ELSE,
 	for: TokenType.FOR,
@@ -21,15 +21,15 @@ const Keywords: any = {
 	to: TokenType.TO,
 	// do: TokenType.DO,
 	print: TokenType.PRINT,
-	class: TokenType.CLASS,
+	'class!': TokenType.CLASS,
 	extends: TokenType.EXTENDS,
 	true: TokenType.TRUE,
 	false: TokenType.FALSE,
 	loop: TokenType.LOOP,
-	fn: TokenType.FUNCTION,
+	'fn!': TokenType.FUNCTION,
 	typeof: TokenType.TYPEOF,
 	sizeof: TokenType.SIZEOF,
-	pragma: TokenType.PRAGMA
+	'pragma!': TokenType.PRAGMA
 };
 
 export default Keywords;
