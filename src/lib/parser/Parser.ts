@@ -241,7 +241,7 @@ export default class Parser {
 	}
 
 	private call(): Expression {
-		let expr = this.primary();
+		let expr = this.lambda();
 
 		while (true) {
 			if (this.match(TokenType.LEFT_PAREN)) {
@@ -250,6 +250,16 @@ export default class Parser {
 		}
 
 		return expr;
+	}
+
+	private lambda(): Expression {
+		if (this.match(TokenType.LAMBDA)) {
+			const leftParen = this.consume(TokenType.LEFT_PAREN, `Expected '(' after 'lambda!' keyword.`);
+
+			return new Expr.Lambda(this.parseFnArgs(leftParen, 'lambda'), this.block());
+		} else {
+			return this.primary();
+		}
 	}
 
 	private primary(): Expression {
@@ -489,7 +499,6 @@ export default class Parser {
 	}
 
 	private function(kind: string): Stmt.FunctionStmt {
-		const parameters: Token[] = [];
 		const name: Token = this.consume(
 			TokenType.IDENTIFIER,
 			`Expected ${kind} name, found '${this.currentToken().lexeme}'.`
@@ -497,56 +506,7 @@ export default class Parser {
 
 		this.consume(TokenType.LEFT_PAREN, `Expected '(' after ${kind} name.`);
 
-		if (!this.check(TokenType.RIGHT_PAREN)) {
-			do {
-				if (parameters.length >= MAX_ARGS) {
-					throws(new SyntaxError(`Cannot have more than ${MAX_ARGS} arguments.`), this.fileName, {
-						line: name.line,
-						column: (name.column || 1) - name.lexeme.length,
-						endColumn: name.column || 1,
-						exit: true
-					});
-				}
-
-				parameters.push(
-					this.consume(TokenType.IDENTIFIER, `Expected identifier, found '${this.currentToken().lexeme}'.`)
-				);
-			} while (this.match(TokenType.COMMA));
-		}
-
-		this.consume(TokenType.RIGHT_PAREN, `Expected ')' after ${kind} name.`);
-		this.consume(TokenType.LEFT_CURLY, `Expected '{' before ${kind} body.`);
-
-		return new Stmt.FunctionStmt(name, parameters, this.block());
-	}
-
-	private lambda(): Expr.Lambda {
-		const parameters: Token[] = [];
-		const lambdaKeyword = this.consume(TokenType.LEFT_PAREN, `Expected '(' after 'lambda' keyword.`);
-
-		// TODO: Separate in function
-
-		if (!this.check(TokenType.RIGHT_PAREN)) {
-			do {
-				if (parameters.length >= MAX_ARGS) {
-					throws(new SyntaxError(`Cannot have more than ${MAX_ARGS} arguments.`), this.fileName, {
-						line: lambdaKeyword.line,
-						column: (lambdaKeyword.column || 1) - lambdaKeyword.lexeme.length,
-						endColumn: lambdaKeyword.column || 1,
-						exit: true
-					});
-				}
-
-				parameters.push(
-					this.consume(TokenType.IDENTIFIER, `Expected identifier, found '${this.currentToken().lexeme}'.`)
-				);
-			} while (this.match(TokenType.COMMA));
-		}
-
-		this.consume(TokenType.RIGHT_PAREN, `Expected ')' after lambda arguments.`);
-		this.consume(TokenType.LEFT_CURLY, `Expected '{' before lambda body.`);
-
-		return new Expr.Lambda(parameters, this.block());
+		return new Stmt.FunctionStmt(name, this.parseFnArgs(name, kind), this.block());
 	}
 
 	private match(...tokentypes: TokenType[]): boolean {
@@ -582,6 +542,32 @@ export default class Parser {
 	private advance(): Token {
 		if (!this.isEnd()) this.current++;
 		return this.previous();
+	}
+
+	private parseFnArgs(errorOrigin: Token, kind: string): Token[] {
+		const parameters: Token[] = [];
+
+		if (!this.check(TokenType.RIGHT_PAREN)) {
+			do {
+				if (parameters.length >= MAX_ARGS) {
+					throws(new SyntaxError(`Cannot have more than ${MAX_ARGS} arguments.`), this.fileName, {
+						line: errorOrigin.line,
+						column: (errorOrigin.column || 1) - errorOrigin.lexeme.length,
+						endColumn: errorOrigin.column || 1,
+						exit: true
+					});
+				}
+
+				parameters.push(
+					this.consume(TokenType.IDENTIFIER, `Expected identifier, found '${this.currentToken().lexeme}'.`)
+				);
+			} while (this.match(TokenType.COMMA));
+		}
+
+		this.consume(TokenType.RIGHT_PAREN, `Expected ')' after ${kind} arguments.`);
+		this.consume(TokenType.LEFT_CURLY, `Expected '{' before ${kind} body.`);
+
+		return parameters;
 	}
 
 	private consume(type: TokenType, msg: string, hint?: string): Token | never {

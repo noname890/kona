@@ -1,16 +1,16 @@
 import KonaCallable from './KonaCallable';
-import { FunctionStmt } from '../statements/stmt';
+import { Lambda } from '../expressions/exp';
 import Interpreter from './interpreter';
 import Environment from './Environment';
 import { Return } from '../internal/error/errorTypes/runtime/Return';
 
-export default class KonaFn implements KonaCallable {
+export default class KonaLambda implements KonaCallable {
 	private fnRepresentation: string;
 
-	constructor(public declaration: FunctionStmt) {
+	constructor(public declaration: Lambda) {
 		// generate representation of function
 		const argList = this.declaration.params.map((arg) => arg.lexeme);
-		this.fnRepresentation = `fn! ${this.declaration.name.lexeme}(${argList.join(', ')}) { /* kona code */ } `;
+		this.fnRepresentation = `λ!(${argList.join(', ')}) { /* kona code */ } `;
 	}
 
 	/**

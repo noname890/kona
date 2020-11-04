@@ -30,6 +30,7 @@ import { Continue } from '../internal/error/errorTypes/runtime/Continue';
 import { ReferenceError } from '../internal/error/errorTypes/runtime/ReferenceError';
 import { SyntaxError } from '../internal/error/errorTypes/SyntaxError';
 import { Return } from '../internal/error/errorTypes/runtime/Return';
+import KonaLambda from './KonaLambda';
 
 // ---------- TYPES ---------- //
 
@@ -368,13 +369,20 @@ export default class Interpreter implements ExpVisitors, StmtVisitors {
 			}
 		}
 
-		this.stack.addFunctionCall(expression.calleeToken.lexeme, expression.calleeToken);
+		this.stack.addFunctionCall(
+			fn instanceof KonaLambda ? '<anonymous>' : expression.calleeToken.lexeme,
+			expression.calleeToken
+		);
 
 		const callResult = fn.callFn(this, fnArguments, expression.calleeToken);
 
 		this.stack.removeFunctionCall();
 
 		return callResult;
+	}
+
+	public visitLambda(expression: Expr.Lambda): any {
+		return new KonaLambda(expression);
 	}
 
 	/**
